@@ -6,3 +6,4 @@ bash Miniconda3-4.3.30-Linux-x86_64.sh
 /home/thekeele/miniconda3/bin/conda install -y scikit-learn
 #/home/thekeele/miniconda3/bin/conda install nltk-with-data
 rm -f Miniconda3-4.3.30-Linux-x86_64.sh
+/home/thekeele/miniconda3/bin/python test.py
