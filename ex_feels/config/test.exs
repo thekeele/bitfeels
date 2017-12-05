@@ -12,8 +12,8 @@ config :logger, level: :warn
 # Configure your database
 config :ex_feels, ExFeels.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
-  password: "postgres",
+  username: "thekeele",
+  password: "",
   database: "ex_feels_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox

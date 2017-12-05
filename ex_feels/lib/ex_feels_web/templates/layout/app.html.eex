@@ -7,18 +7,18 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Hello ExFeels!</title>
+    <title>ExFeels</title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
   </head>
 
   <body>
     <div class="container">
       <header class="header">
-        <nav role="navigation">
+        <!--<nav role="navigation">
           <ul class="nav nav-pills pull-right">
             <li><a href="http://www.phoenixframework.org/docs">Get Started</a></li>
           </ul>
-        </nav>
+        </nav>-->
         <span class="logo"></span>
       </header>
 
