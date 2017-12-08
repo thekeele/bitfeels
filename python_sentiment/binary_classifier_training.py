@@ -51,7 +51,7 @@ best_cvs = 0    # cv score
 best_clf = None # classifier
 for clf in [MultinomialNB(), RandomForestClassifier(), GradientBoostingClassifier()]:
 
-    """ pipeline provides a workflow for processing the input text before classification """
+    # pipeline provides a workflow for processing the input text before classification
     pipeline = Pipeline([('vect',   CountVectorizer()),             # turns strings into sparse arrays of word-counts
                          ('tfidf',  TfidfTransformer()),            # scales word counts based on frequency across samples (reduces weight of common words e.g. "and")
                          ('chi2',   SelectKBest(chi2, k=2000)),     # selects k features with highest chi-square value. chi-square measures dependence of target on feature
