@@ -66,6 +66,7 @@ for clf in [MultinomialNB(), RandomForestClassifier(), GradientBoostingClassifie
         best_clf = clf
         
 # now fit best-performing classifier to entire dataset
+print("Fitting " + best_clf.__class__.__name__ + " to full dataset")
 pipeline = Pipeline([('vect',   CountVectorizer()),
                      ('tfidf',  TfidfTransformer()),
                      ('chi2',   SelectKBest(chi2, k=2000)),
