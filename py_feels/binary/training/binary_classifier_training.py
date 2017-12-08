@@ -28,21 +28,31 @@ from sklearn.naive_bayes import MultinomialNB           # naive bayes classifier
 # assemble training data from various files into pandas DataFrame objects.
 # format of the files is a sentence followed by a sentiment
 # 1 == positive sentiment and 0 == negative sentiment
-amazon = pd.read_csv('UCI_training_data/amazon_cells_labelled.txt', 
-                     sep="\t", 
-                     names=['sentence', 'sentiment'], 
-                     dtype={'sentence':str, 'sentiment':int})
-yelp   = pd.read_csv('UCI_training_data/yelp_labelled.txt', 
-                     sep="\t", 
-                     names=['sentence', 'sentiment'], 
-                     dtype={'sentence':str, 'sentiment':int})
-imdb   = pd.read_csv('UCI_training_data/imdb_labelled.txt', 
-                     sep="\t", 
-                     names=['sentence', 'sentiment'], 
-                     dtype={'sentence':str, 'sentiment':int})
+amazon = pd.read_csv(
+        'UCI_training_data/amazon_cells_labelled.txt', 
+        sep="\t", 
+        names=['sentence', 'sentiment'], 
+        dtype={'sentence':str, 'sentiment':int}
+)
 
-# concatenate the individual dataframes, shuffle them (sample with frac=1) and reset the index
-data   = pd.concat([amazon, yelp, imdb], ignore_index = True).sample(frac=1).reset_index(drop=True)
+yelp   = pd.read_csv(
+        'UCI_training_data/yelp_labelled.txt', 
+        sep="\t", 
+        names=['sentence', 'sentiment'], 
+        dtype={'sentence':str, 'sentiment':int}
+)
+
+imdb   = pd.read_csv(
+        'UCI_training_data/imdb_labelled.txt', 
+        sep="\t", 
+        names=['sentence', 'sentiment'], 
+        dtype={'sentence':str, 'sentiment':int}
+)
+
+# concatenate the individual dataframes, shuffle them 
+# (sample with frac=1) and reset the index
+data   = pd.concat([amazon, yelp, imdb], 
+                   ignore_index = True).sample(frac=1).reset_index(drop=True)
 del amazon, yelp, imdb # clean up
 
 # we loop over a few classifiers looking for a good one. 
@@ -51,15 +61,26 @@ best_cvs = 0    # cv score
 best_clf = None # classifier
 for clf in [MultinomialNB(), RandomForestClassifier(), GradientBoostingClassifier()]:
 
-    # pipeline provides a workflow for processing the input text before classification
-    pipeline = Pipeline([('vect',   CountVectorizer()),             # turns strings into sparse arrays of word-counts
-                         ('tfidf',  TfidfTransformer()),            # scales word counts based on frequency across samples (reduces weight of common words e.g. "and")
-                         ('chi2',   SelectKBest(chi2, k=2000)),     # selects k features with highest chi-square value. chi-square measures dependence of target on feature
-                         ('clf',     clf)])                         # classifier takes k-best as input and outputs 1 or 0 
+    # pipeline provides a workflow for processing the input text
+    # vect turns strings into sparse arrays of word-counts
+    # tfidf scales word counts based on frequency across samples
+    # chi2 selects k features based on correlation with target
+    # clf takes k-best as input and outputs 1 or 0 
+    pipeline = Pipeline([
+            ('vect',   CountVectorizer()),             
+            ('tfidf',  TfidfTransformer()),            
+            ('chi2',   SelectKBest(chi2, k=2000)),     
+            ('clf',     clf)
+    ])                         
     
-    # cross-validation splits the data roughly in half, fits to one half and tests accuracy on the other. 
-    CVS = cross_val_score(pipeline, data['sentence'], y=data['sentiment'], cv=100)
-    print("%30s cross-validation accuracy: %0.3f (+/- %0.3f)" % (clf.__class__.__name__, CVS.mean(), CVS.std()*2))
+    # cross-validation splits the data roughly in half, 
+    # fits to one half and tests accuracy on the other. 
+    CVS = cross_val_score(pipeline, 
+                          data['sentence'], 
+                          y=data['sentiment'], 
+                          cv=100)
+    print("%30s cross-validation accuracy: %0.3f (+/- %0.3f)"
+          % (clf.__class__.__name__, CVS.mean(), CVS.std()*2))
     
     if CVS.mean() > best_cvs:
         best_cvs = CVS.mean()
@@ -67,10 +88,12 @@ for clf in [MultinomialNB(), RandomForestClassifier(), GradientBoostingClassifie
         
 # now fit best-performing classifier to entire dataset
 print("Fitting " + best_clf.__class__.__name__ + " to full dataset")
-pipeline = Pipeline([('vect',   CountVectorizer()),
-                     ('tfidf',  TfidfTransformer()),
-                     ('chi2',   SelectKBest(chi2, k=2000)),
-                     ('clf',    best_clf)])  
+pipeline = Pipeline([
+        ('vect',   CountVectorizer()),
+        ('tfidf',  TfidfTransformer()),
+        ('chi2',   SelectKBest(chi2, k=2000)),
+        ('clf',    best_clf)
+])  
 
 pipeline.fit(data['sentence'], y=data['sentiment'])
 

@@ -18,16 +18,18 @@ from sklearn.externals.joblib import load
 model = load('./model/binary_classifier.pckl')
 
 # read amazon training data for testing loaded model
-amazon = pd.read_csv('./training/UCI_training_data/amazon_cells_labelled.txt', 
-                     sep="\t", 
-                     names=['sentence', 'sentiment'], 
-                     dtype={'sentence':str, 'sentiment':int})
+amazon = pd.read_csv(
+        './training/UCI_training_data/amazon_cells_labelled.txt', 
+        sep="\t", 
+        names=['sentence', 'sentiment'], 
+        dtype={'sentence':str, 'sentiment':int}
+)
 
 # predict sentiments in the amazon data
 predictions = model.predict(amazon['sentence'])
 
-# print accuracy
-accuracy    = (predictions == amazon['sentiment']).sum()/predictions.size # 1 is perfect
+# print accuracy, 1 is perfect
+accuracy = (predictions == amazon['sentiment']).sum()/predictions.size
 print("Accuracy of %.3f on amazon data" % accuracy)
 
 
