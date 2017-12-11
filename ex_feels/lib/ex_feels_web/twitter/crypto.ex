@@ -7,37 +7,6 @@ defmodule ExFeelsWeb.Twitter.Crypto do
   @access_token Application.get_env(:ex_feels, :twitter)[:access_token]
   @token_secret Application.get_env(:ex_feels, :twitter)[:token_secret]
 
-  # oauth_consumer_key
-  def consumer_key(),
-    do: @consumer_key
-
-  # oauth_token
-  # https://developer.twitter.com/en/docs/basics/authentication/guides/access-tokens.html
-  def token(),
-    do: @access_token
-
-  # oauth_signature_method
-  def method(),
-    do: "HMAC-SHA1"
-
-  # oauth_timestamp
-  def timestamp(),
-    do: DateTime.utc_now() |> DateTime.to_unix()
-
-  # oauth_nonce
-  def nonce(bytes \\ 32) do
-    string =
-      bytes
-      |> :crypto.strong_rand_bytes()
-      |> Base.encode64(padding: false)
-
-    Regex.replace(~r/\+|\/|[0-9]/, string, "z")
-  end
-
-  # oauth_version
-  def version(),
-    do: "1.0"
-
   def oauth_header(method, url) do
     ts = timestamp()
     nonce = nonce()
@@ -82,4 +51,35 @@ defmodule ExFeelsWeb.Twitter.Crypto do
 
     customer_secret <> "&" <> token_secret
   end
+
+  # oauth_consumer_key
+  defp consumer_key(),
+    do: @consumer_key
+
+  # oauth_token
+  # https://developer.twitter.com/en/docs/basics/authentication/guides/access-tokens.html
+  defp token(),
+    do: @access_token
+
+  # oauth_signature_method
+  defp method(),
+    do: "HMAC-SHA1"
+
+  # oauth_timestamp
+  defp timestamp(),
+    do: DateTime.utc_now() |> DateTime.to_unix()
+
+  # oauth_nonce
+  defp nonce(bytes \\ 32) do
+    string =
+      bytes
+      |> :crypto.strong_rand_bytes()
+      |> Base.encode64(padding: false)
+
+    Regex.replace(~r/\+|\/|[0-9]/, string, "z")
+  end
+
+  # oauth_version
+  defp version(),
+    do: "1.0"
 end
