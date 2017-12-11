@@ -1,14 +1,20 @@
 defmodule ExFeelsWeb.Twitter.Crypto do
   # https://developer.twitter.com/en/docs/basics/authentication/guides/authorizing-a-request
 
+  @consumer_key Application.get_env(:ex_feels, :twitter)[:consumer_key]
+  @consumer_secret Application.get_env(:ex_feels, :twitter)[:consumer_secret]
+
+  @access_token Application.get_env(:ex_feels, :twitter)[:access_token]
+  @token_secret Application.get_env(:ex_feels, :twitter)[:token_secret]
+
   # oauth_consumer_key
   def consumer_key(),
-    do: Application.get_env(:ex_feels, :twitter)[:consumer_key]
+    do: @consumer_key
 
   # oauth_token
   # https://developer.twitter.com/en/docs/basics/authentication/guides/access-tokens.html
   def token(),
-    do: Application.get_env(:ex_feels, :twitter)[:access_token]
+    do: @access_token
 
   # oauth_signature_method
   def method(),
@@ -71,8 +77,8 @@ defmodule ExFeelsWeb.Twitter.Crypto do
   end
 
   defp signing_key() do
-    customer_secret = Application.get_env(:ex_feels, :twitter)[:consumer_secret]
-    token_secret = Application.get_env(:ex_feels, :twitter)[:token_secret]
+    customer_secret = @consumer_secret
+    token_secret = @token_secret
 
     customer_secret <> "&" <> token_secret
   end
