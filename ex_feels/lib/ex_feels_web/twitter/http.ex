@@ -9,7 +9,7 @@ defmodule ExFeelsWeb.Twitter.HTTP do
 
     headers = [{"Authorization", Crypto.oauth_header(method, url, params)}]
 
-    url = if params == %{}, do: url, else: url <> "?#{URI.encode_query(params)}"
+    url = maybe_query_params(url, params)
 
     case :hackney.request(method, url, headers, [], [:with_body]) do
       {:ok, 200, _headers, body} ->
@@ -24,4 +24,7 @@ defmodule ExFeelsWeb.Twitter.HTTP do
         {:error, "#{inspect error}"}
     end
   end
+
+  defp maybe_query_params(url, params) when map_size(params) == 0, do: url
+  defp maybe_query_params(url, params), do: url <> "?#{URI.encode_query(params)}"
 end
