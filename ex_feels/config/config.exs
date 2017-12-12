@@ -17,6 +17,12 @@ config :ex_feels, ExFeelsWeb.Endpoint,
   pubsub: [name: ExFeels.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
+config :ex_feels, :twitter,
+  consumer_key: System.get_env("TWITTER_CONSUMER_KEY"),
+  consumer_secret: System.get_env("TWITTER_CONSUMER_SECRET"),
+  access_token: System.get_env("TWITTER_ACCESS_TOKEN"),
+  token_secret: System.get_env("TWITTER_TOKEN_SECRET")
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
