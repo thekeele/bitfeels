@@ -1,6 +1,6 @@
 defmodule ExFeelsWeb.Twitter do
 
-  alias ExFeelsWeb.Twitter.HTTP
+  alias ExFeelsWeb.Twitter.{HTTP, Search}
 
   def account_settings() do
     case HTTP.request("GET", "/account/settings.json") do
@@ -13,10 +13,10 @@ defmodule ExFeelsWeb.Twitter do
 
   def search(params) do
     case HTTP.request("GET", "/search/tweets.json", params) do
-      {:ok, resp} ->
-        keys = ["created_at", "id", "text", "retweet_count", "favorite_count", "lang"]
-
-        Enum.map(resp["statuses"], &Map.take(&1, keys))
+      {:ok, %{"statuses" => statuses}} ->
+        statuses
+        |> Search.parse_to_tweets()
+        |> IO.inspect(label: "tweets")
 
       error -> error
     end
