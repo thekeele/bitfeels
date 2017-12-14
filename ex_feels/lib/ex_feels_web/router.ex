@@ -20,7 +20,9 @@ defmodule ExFeelsWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", ExFeelsWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", ExFeelsWeb do
+    pipe_through :api
+
+    get "/tweets", TweetsController, :index
+  end
 end

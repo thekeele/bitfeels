@@ -7,33 +7,35 @@ defmodule ExFeelsWeb.Twitter.Crypto do
   @access_token Application.get_env(:ex_feels, :twitter)[:access_token]
   @token_secret Application.get_env(:ex_feels, :twitter)[:token_secret]
 
-  def oauth_header(method, url) do
+  def oauth_header(method, url, params) do
     nonce = nonce()
     ts = timestamp()
 
     sig =
       {nonce, ts}
-      |> signature_base_string(method, url)
+      |> signature_base_string(method, url, params)
       |> generate_signature()
 
     'OAuth oauth_consumer_key="#{consumer_key()}",oauth_token="#{token()}",oauth_signature_method="#{method()}",oauth_timestamp="#{ts}",oauth_nonce="#{nonce}",oauth_version="#{version()}",oauth_signature="#{sig}"'
   end
 
-  defp signature_base_string({nonce, ts}, method, url) do
-    base =
-      method <>
-      "&#{URI.encode_www_form(url)}"
+  defp signature_base_string({nonce, ts}, method, url, params) do
+    base = method <> "&#{URI.encode_www_form(url)}&"
 
-    auth_params =
-      "&oauth_consumer_key=#{consumer_key()}" <>
-      "&oauth_nonce=#{nonce}" <>
-      "&oauth_signature_method=#{method()}" <>
-      "&oauth_timestamp=#{ts}" <>
-      "&oauth_token=#{token()}" <>
-      "&oauth_version=#{version()}"
+    params =
+      %{
+        "oauth_consumer_key" => consumer_key(),
+        "oauth_nonce" => nonce,
+        "oauth_signature_method" => method(),
+        "oauth_timestamp" => ts,
+        "oauth_token" => token(),
+        "oauth_version" => version()
+      }
+      |> Map.merge(params)
+      |> URI.encode_query()
       |> URI.encode_www_form()
 
-    base <> auth_params
+    base <> params
   end
 
   # oauth_signature
