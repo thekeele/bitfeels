@@ -29,7 +29,7 @@ amazon = pd.read_csv(
 predictions = model.predict(amazon['sentence'])
 
 # print accuracy, 1 is perfect
-accuracy = (predictions == amazon['sentiment']).sum()/predictions.size
+accuracy = (predictions == 2*amazon['sentiment']-1).sum()/predictions.size
 print("Accuracy of %.3f on amazon data" % accuracy)
 
 
