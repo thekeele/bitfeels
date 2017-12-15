@@ -1,4 +1,4 @@
-defmodule ExFeelsWeb.Twitter.Search do
+defmodule ExFeelsWeb.TwitterApi.Search do
 
   def parse_to_tweets(statuses) do
     Enum.map(statuses, fn status ->

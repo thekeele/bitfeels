@@ -1,10 +1,10 @@
 defmodule ExFeelsWeb.TweetsController do
   use ExFeelsWeb, :controller
 
-  alias ExFeelsWeb.Twitter
+  alias ExFeelsWeb.TwitterApi
 
   def index(conn, params) do
-    case Twitter.search(params) do
+    case TwitterApi.search(params) do
       {:error, _} ->
         render(conn, "index.json", tweets: [])
 
