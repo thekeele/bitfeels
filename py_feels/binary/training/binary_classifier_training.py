@@ -123,7 +123,7 @@ data   = pd.concat([amazon, yelp, imdb, uic_pro, uic_con,
                     kaggle_a, kaggle_m],
                    ignore_index = True).sample(frac=1).reset_index(drop=True)
 # clean up
-#del amazon, yelp, imdb, uic_pro, uic_con, dz, kaggle_a, kaggle_m
+del amazon, yelp, imdb, uic_pro, uic_con, kaggle_a, kaggle_m
 
 # drop any duplicates and reset index
 data.drop_duplicates(inplace=True)
