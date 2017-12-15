@@ -51,8 +51,8 @@ config :phoenix, :stacktrace_depth, 20
 # Configure your database
 config :ex_feels, ExFeels.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "thekeele",
+  username: "wojak",
   password: "",
-  database: "ex_feels_dev",
+  database: "bit_feels",
   hostname: "localhost",
   pool_size: 10

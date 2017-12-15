@@ -1,6 +1,6 @@
-defmodule ExFeelsWeb.Twitter do
+defmodule ExFeelsWeb.TwitterApi do
 
-  alias ExFeelsWeb.Twitter.{HTTP, Search}
+  alias ExFeelsWeb.TwitterApi.{HTTP, Search}
 
   def account_settings() do
     case HTTP.request("GET", "/account/settings.json") do
@@ -14,9 +14,7 @@ defmodule ExFeelsWeb.Twitter do
   def search(params) do
     case HTTP.request("GET", "/search/tweets.json", params) do
       {:ok, %{"statuses" => statuses}} ->
-        statuses
-        |> Search.parse_to_tweets()
-        |> IO.inspect(label: "tweets")
+        Search.parse_to_tweets(statuses)
 
       error -> error
     end

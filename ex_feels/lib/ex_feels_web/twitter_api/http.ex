@@ -1,6 +1,6 @@
-defmodule ExFeelsWeb.Twitter.HTTP do
+defmodule ExFeelsWeb.TwitterApi.HTTP do
 
-  alias ExFeelsWeb.Twitter.Crypto
+  alias ExFeelsWeb.TwitterApi.Crypto
 
   @base_url "https://api.twitter.com/1.1"
 
