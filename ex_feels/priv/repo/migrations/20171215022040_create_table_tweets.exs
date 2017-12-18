@@ -8,10 +8,12 @@ defmodule ExFeels.Repo.Migrations.CreateTableTweets do
       add :lang, :string
       add :tweet_id, :integer
       add :favorite_count, :integer
-      add :created_at, :naive_datetime
+      add :created_at, :string
       add :hashtags, {:array, :string}
 
       timestamps()
     end
+
+    unique_index("tweets", [:tweet_id])
   end
 end

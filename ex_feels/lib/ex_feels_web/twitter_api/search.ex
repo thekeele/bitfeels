@@ -9,11 +9,9 @@ defmodule ExFeelsWeb.TwitterApi.Search do
           parse_status_data(status["retweeted_status"])
         end
 
-      %{
-        "hashtags" => parse_hashtags_data(status["entities"]["hashtags"]),
-        "user" => parse_user_data(status["user"]),
-        "tweet" => tweet
-      }
+      tweet
+      |> Map.put("hashtags", parse_hashtags_data(status["entities"]["hashtags"]))
+      |> Map.put("user", parse_user_data(status["user"]))
     end)
   end
 

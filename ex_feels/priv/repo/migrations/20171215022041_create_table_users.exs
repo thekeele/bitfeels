@@ -5,7 +5,7 @@ defmodule ExFeels.Repo.Migrations.CreateTableUsers do
     create table("users") do
       add :verified, :boolean, default: false
       add :time_zone, :string
-      add :status_count, :integer
+      add :statuses_count, :integer
       add :screen_name, :string
       add :user_id, :integer
       add :followers_count, :integer
@@ -14,5 +14,7 @@ defmodule ExFeels.Repo.Migrations.CreateTableUsers do
 
       timestamps()
     end
+
+    unique_index("users", [:user_id])
   end
 end
