@@ -8,14 +8,14 @@ defmodule ExFeels.Twitter.User do
   alias ExFeels.{Twitter.Tweet, Repo}
 
   @fields [
-    :verified, :time_zone, :status_count, :screen_name, :user_id,
+    :verified, :time_zone, :statuses_count, :screen_name, :user_id,
     :followers_count, :favourites_count
   ]
 
   schema "users" do
     field :verified, :boolean, default: false
     field :time_zone, :string
-    field :status_count, :integer
+    field :statuses_count, :integer
     field :screen_name, :string
     field :user_id, :integer
     field :followers_count, :integer
@@ -27,7 +27,11 @@ defmodule ExFeels.Twitter.User do
   end
 
   def changeset(struct \\ %__MODULE__{}, params \\ %{}) do
-    cast(struct, params, @fields)
+    params = Map.put(params, "user_id", params["id"])
+
+    struct
+    |> cast(params, @fields)
+    |> unique_constraint(:user_id)
   end
 
   def create(params) do
@@ -36,7 +40,27 @@ defmodule ExFeels.Twitter.User do
     |> Repo.insert()
   end
 
+  def update(%__MODULE__{} = user, params) do
+    user
+    |> cast(params, [:verified, :time_zone, :statuses_count, :followers_count, :favourites_count])
+    |> Repo.update()
+  end
+
+  def upsert(user_id, user_params) when is_integer(user_id) do
+    case get(user_id) do
+      nil ->
+        create(user_params)
+
+      user ->
+        update(user, user_params)
+    end
+  end
+
   def get(id) do
     Repo.get(__MODULE__, id)
+  end
+
+  def all() do
+    Repo.all(__MODULE__)
   end
 end

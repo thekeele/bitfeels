@@ -2,9 +2,10 @@ defmodule ExFeelsWeb.TweetsController do
   use ExFeelsWeb, :controller
 
   alias ExFeelsWeb.TwitterApi
+  alias ExFeels.Twitter.Tweet
 
-  def index(conn, params) do
-    case TwitterApi.search(params) do
+  def index(conn, _params) do
+    case TwitterApi.search(%{"q" => "bitcoin", "count" => 1, "lang" => "en"}) do
       {:error, _} ->
         render(conn, "index.json", tweets: [])
 
@@ -12,6 +13,8 @@ defmodule ExFeelsWeb.TweetsController do
         render(conn, "index.json", tweets: [])
 
       tweets ->
+        Tweet.create_all(tweets)
+
         render(conn, "index.json", tweets: tweets)
     end
   end

@@ -5,14 +5,16 @@ defmodule ExFeels.Repo.Migrations.CreateTableUsers do
     create table("users") do
       add :verified, :boolean, default: false
       add :time_zone, :string
-      add :status_count, :integer
+      add :statuses_count, :integer
       add :screen_name, :string
-      add :user_id, :integer
+      add :user_id, :bigserial
       add :followers_count, :integer
       add :favourites_count, :integer
       add :tweet_id, references("tweets")
 
       timestamps()
     end
+
+    unique_index("users", [:user_id])
   end
 end
