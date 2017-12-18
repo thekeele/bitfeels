@@ -7,7 +7,7 @@ defmodule ExFeels.Repo.Migrations.CreateTableUsers do
       add :time_zone, :string
       add :statuses_count, :integer
       add :screen_name, :string
-      add :user_id, :integer
+      add :user_id, :bigserial
       add :followers_count, :integer
       add :favourites_count, :integer
       add :tweet_id, references("tweets")
