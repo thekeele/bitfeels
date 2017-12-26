@@ -53,6 +53,6 @@ config :ex_feels, ExFeels.Repo,
   adapter: Ecto.Adapters.Postgres,
   username: "wojak",
   password: "",
-  database: "bit_feels",
+  database: "bit_feels_dev",
   hostname: "localhost",
   pool_size: 10
