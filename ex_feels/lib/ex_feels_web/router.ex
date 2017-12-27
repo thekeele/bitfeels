@@ -13,14 +13,14 @@ defmodule ExFeelsWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", ExFeelsWeb do
+  scope "/bitfeels", ExFeelsWeb do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
   end
 
   # Other scopes may use custom stacks.
-  scope "/api", ExFeelsWeb do
+  scope "/bitfeels/api", ExFeelsWeb do
     pipe_through :api
 
     get "/tweets", TweetsController, :index
