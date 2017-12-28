@@ -1,3 +1,5 @@
+# https://hexdocs.pm/phoenix/deployment.html
+
 # clean up
 rm -rf ../_build
 rm -rf ../assets/node_modules
@@ -14,7 +16,8 @@ brunch build --production
 cd ..
 MIX_ENV=prod mix phx.digest
 
-# setup db
-MIX_ENV=prod mix ecto.drop
-MIX_ENV=prod mix ecto.create
+# migrate db
 MIX_ENV=prod mix ecto.migrate
+
+# start server
+MIX_ENV=prod PORT=4001 elixir --detached -S mix phx.server
