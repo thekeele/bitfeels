@@ -7,8 +7,8 @@ use Mix.Config
 # watchers to your application. For example, we use it
 # with brunch.io to recompile .js and .css sources.
 config :ex_feels, ExFeelsWeb.Endpoint,
-  http: [port: 4000],
-  debug_errors: true,
+  http: [port: 4001],
+  debug_errors: false,
   code_reloader: true,
   check_origin: false,
   watchers: [node: ["node_modules/brunch/bin/brunch", "watch", "--stdin",
@@ -53,6 +53,6 @@ config :ex_feels, ExFeels.Repo,
   adapter: Ecto.Adapters.Postgres,
   username: "wojak",
   password: "",
-  database: "bit_feels",
+  database: "bit_feels_dev",
   hostname: "localhost",
   pool_size: 10
