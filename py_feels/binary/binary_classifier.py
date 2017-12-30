@@ -13,15 +13,24 @@ mongo DB of tweets and return sentiments
 # we only need pandas, mongo and joblib to use the model
 import pandas as pd
 import datetime
+from sys import argv
 from sqlalchemy import create_engine
 from sklearn.externals.joblib import load
+
+# check environment
+if len(argv) < 2 or argv[1] == "dev":
+    env = "bit_feels_dev"
+elif argv[1] == "prod":
+    env = "bit_feels"
+else:
+    raise EnvironmentError("Environment should be 'dev' or 'prod'")
 
 # load fitted model
 model = load('./model/binary_classifier.pckl')
 
 # connect to  SQL database, query for last item in 'tweets' table
-engine = create_engine('postgresql+psycopg2://wojak:@localhost/bit_feels_dev')
-query  = "SELECT * FROM tweets WHERE id=(SELECT max(id) FROM tweets)"
+engine = create_engine('postgresql+psycopg2://wojak:@localhost/' + env)
+query  = "SELECT tweet_id, text FROM tweets ORDER BY inserted_at DESC LIMIT 1"
 tweets = pd.read_sql(query, engine)
 
 # predict sentiments in dataframe
