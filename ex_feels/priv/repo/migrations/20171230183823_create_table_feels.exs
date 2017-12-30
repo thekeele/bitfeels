@@ -3,9 +3,9 @@ defmodule ExFeels.Repo.Migrations.CreateTableFeels do
 
   def change do
     create table("feels") do
-      add :tweet_id, :bigserial
       add :classifier, :string
       add :sentiment, :string
+      add :tweet_id, references("tweets")
 
       timestamps()
     end
