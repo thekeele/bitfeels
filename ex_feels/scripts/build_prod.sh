@@ -11,6 +11,7 @@ MIX_ENV=prod mix compile
 
 # compile assets
 cd ./assets
+npm install
 brunch build --production
 
 cd ..
