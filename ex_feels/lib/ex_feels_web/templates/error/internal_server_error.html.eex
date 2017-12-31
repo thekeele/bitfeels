@@ -8,11 +8,11 @@
     <link rel="stylesheet" href="/css/app.css">
   </head>
   <body>
-    <div class="container">
-      <div class="jumbotron">
-        <h2>Internal Feel Error</h2>
+    <section class="section">
+      <div class="container">
+        <h2 class="center">Internal Feel Error</h2>
         <img src="/images/feels.jpg" height="400" width="600">
       </div>
-    </div>
+    </section>
   </body>
 </html>

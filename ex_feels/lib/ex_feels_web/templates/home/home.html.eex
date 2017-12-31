@@ -1,11 +1,20 @@
-<div class="jumbotron">
-  <h2>BitFeels</h2>
-  <%= for feel <- @feels do %>
-    <hr />
-    <p><%= feel.tweet.text %></p>
-    <p><%= binary_sentiment(feel.sentiment) %></p>
-    <p><%= feel.classifier %></p>
-  <% end %>
-</div>
+<h2 class="center">BitFeels</h2>
 
+<%= for feel <- @feels do %>
+  <section class="hero is-<%= feel.sentiment |> sentiment() |> elem(0) %>">
+    <div class="hero-body">
+      <div class="container">
+        <h1 class="tweet center">
+          <%= feel.tweet.text %>
+        </h1>
+        <h2 class="emoji center">
+          <%= feel.sentiment |> sentiment() |> elem(1) %>
+        </h2>
+        <h2 class="subtitle center">
+          <%= feel.classifier %>
+        </h2>
+      </div>
+    </div>
+  </section>
+<% end %>
 
