@@ -1,5 +1,8 @@
 # https://hexdocs.pm/phoenix/deployment.html
 
+# kill the running process
+kill $(ps aux | grep '[e]lixir' | awk '{print $2}')
+
 # clean up
 rm -rf ../_build
 rm -rf ../assets/node_modules
