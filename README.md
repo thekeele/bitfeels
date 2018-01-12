@@ -1,4 +1,4 @@
-# BitFeels
+# bitfeels
 Steaming sentiment analysis for cryptos
 
 Built with:
