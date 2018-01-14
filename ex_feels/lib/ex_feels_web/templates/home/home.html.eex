@@ -1,18 +1,20 @@
 <h2 class="center">BitFeels</h2>
 
 <%= for feel <- @feels do %>
-  <section class="hero is-<%= feel.sentiment |> sentiment() |> elem(0) %>">
+  <section class="hero is-light">
     <div class="hero-body">
       <div class="container">
-        <h1 class="tweet center">
+        <h1 class="hero is-info tweet center">
           <%= feel.tweet.text %>
         </h1>
+	<div class="hero is-<%= feel.sentiment |> sentiment() |> elem(0) %> column">
         <h2 class="emoji center">
           <%= feel.sentiment |> sentiment() |> elem(1) %>
         </h2>
         <h2 class="subtitle center">
           <%= feel.classifier %>
         </h2>
+	</div>
       </div>
     </div>
   </section>

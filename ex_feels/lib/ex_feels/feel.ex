@@ -26,8 +26,8 @@ defmodule ExFeels.Feel do
   def all() do
     __MODULE__
     |> join(:inner, [f], t in Tweet, f.tweet_id == t.id)
-    |> distinct([f, _], desc: f.tweet_id)
-    |> order_by([f, _], desc: f.inserted_at)
+#    |> distinct([f, _], desc: f.tweet_id)
+#    |> order_by([f, _], desc: f.inserted_at)
     |> select([f, t], %{
       tweet: %{text: t.text},
       sentiment: f.sentiment,
