@@ -34,9 +34,16 @@ with open('./model/model_dict.pckl', 'rb') as f:
 
 # connect to  SQL database, query for last item in 'tweets' table
 engine = create_engine('postgresql+psycopg2://wojak:@localhost/' + env)
-query  = "SELECT tweet_id, text FROM tweets ORDER BY inserted_at DESC LIMIT 1"
-tweets = pd.read_sql(query, engine)    
+query  = "SELECT tweet_id, text FROM tweets ORDER BY inserted_at"
+tweets = pd.read_sql(query, engine)
+query  = "SELECT DISTINCT tweet_id FROM feels"
+clfied = pd.read_sql(query, engine)
 
+# determine those unique tweets for which no feels exist
+unclassified = list(set(tweets.tweet_id.values)-set(clfied.tweet_id.values))
+tweets = tweets[tweets['tweet_id'].isin(unclassified)]
+
+# loop through classifiers and push feels
 for name in fitted_models:
     # load fitted model
     model = load(fitted_models[name])
