@@ -28,6 +28,7 @@ defmodule ExFeels.Feel do
     |> join(:inner, [f], t in Tweet, f.tweet_id == t.id)
     |> select([f, t], %{
       tweet: %{
+        id: t.id,
         text: t.text,
         created_at: t.created_at
       },

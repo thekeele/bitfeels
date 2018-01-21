@@ -13,6 +13,6 @@ defmodule ExFeelsWeb.HomeController do
     feels
     |> Enum.group_by(&(&1.tweet))
     |> Enum.into([])
-    |> Enum.sort(&(elem(&1, 0).created_at >= elem(&2, 0).created_at))
+    |> Enum.sort(&(elem(&1, 0).id >= elem(&2, 0).id))
   end
 end
