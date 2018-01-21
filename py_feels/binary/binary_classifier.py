@@ -25,42 +25,49 @@ elif argv[1] == "prod":
 else:
     raise EnvironmentError("Environment should be 'dev' or 'prod'")
 
-# load model dictionary
-with open('./model/model_dict.pckl', 'rb') as f:
-    fitted_models = pickle.load(f)
-
-""" We will loop through the fitted models, load the classifier and push
-    the feels into the database """
-
 # connect to  SQL database, query for last item in 'tweets' table
 engine = create_engine('postgresql+psycopg2://wojak:@localhost/' + env)
-query  = "SELECT tweet_id, text FROM tweets ORDER BY inserted_at"
+
+query  = "SELECT id, text FROM tweets"
 tweets = pd.read_sql(query, engine)
+
 query  = "SELECT DISTINCT tweet_id FROM feels"
-clfied = pd.read_sql(query, engine)
+classified = pd.read_sql(query, engine)
 
 # determine those unique tweets for which no feels exist
-unclassified = list(set(tweets.tweet_id.values)-set(clfied.tweet_id.values))
-tweets = tweets[tweets['tweet_id'].isin(unclassified)]
+unclassified = list(
+    set(tweets.id.values) - set(classified.tweet_id.values)
+)
 
-# loop through classifiers and push feels
-for name in fitted_models:
-    # load fitted model
-    model = load(fitted_models[name])
-    
-    # predict sentiments in dataframe
-    sentiments = model.predict(tweets.text.values)
-    
-    # construct feels DataFrame for passing back to SQL
-    feels = pd.DataFrame()
-    feels['sentiment']   = list(map(str, sentiments))
-    feels['classifier']  = name
-    feels['tweet_id']    = tweets.tweet_id.values
-    
-    # store prediction time
-    time_now = str(datetime.datetime.now())
-    feels['inserted_at'] = time_now
-    feels['updated_at']  = time_now
-    
-    # write predictions to 'feels' table in database
-    feels.to_sql('feels', engine, if_exists='append', index=False)
+tweets = tweets[tweets['id'].isin(unclassified)]
+
+# only predict sentiment if there's text data
+if not tweets.text.empty:
+    # load model dictionary
+    with open('./model/model_dict.pckl', 'rb') as f:
+        fitted_models = pickle.load(f)
+
+    """ We will loop through the fitted models, load the classifier and push
+    the feels into the database """
+
+    # loop through classifiers and push feels
+    for name in fitted_models:
+        # load fitted model
+        model = load(fitted_models[name])
+
+        # predict sentiments in dataframe
+        sentiments = model.predict(tweets.text.values)
+
+        # construct feels DataFrame for passing back to SQL
+        feels = pd.DataFrame()
+        feels['sentiment']   = list(map(str, sentiments))
+        feels['classifier']  = name
+        feels['tweet_id']    = tweets.id.values
+
+        # store prediction time
+        time_now = str(datetime.datetime.now())
+        feels['inserted_at'] = time_now
+        feels['updated_at']  = time_now
+
+        # write predictions to 'feels' table in database
+        feels.to_sql('feels', engine, if_exists='append', index=False)
