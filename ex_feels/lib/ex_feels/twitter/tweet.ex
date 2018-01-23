@@ -36,6 +36,11 @@ defmodule ExFeels.Twitter.Tweet do
     %__MODULE__{}
     |> changeset(params, user)
     |> Repo.insert()
+    |> case do
+      {:ok, tweet} -> tweet
+
+      error -> error
+    end
   end
 
   def create_all(tweets) when is_list(tweets) do
