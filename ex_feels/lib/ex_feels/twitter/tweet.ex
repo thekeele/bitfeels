@@ -26,6 +26,8 @@ defmodule ExFeels.Twitter.Tweet do
   end
 
   def changeset(struct \\ %__MODULE__{}, params \\ %{}, user \\ %User{}) do
+    params = Map.put(params, "tweet_id", params["id"])
+
     struct
     |> cast(params, @fields)
     |> unique_constraint(:tweet_id)
