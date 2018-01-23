@@ -6,6 +6,7 @@ kill $(ps aux | grep '[e]lixir' | awk '{print $2}')
 # clean up
 rm -rf ../_build
 rm -rf ../assets/node_modules
+rm -rf ../priv/static/
 
 # compile app
 cd ..

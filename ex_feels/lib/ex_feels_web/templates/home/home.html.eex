@@ -1,20 +1,40 @@
-<h2 class="center">BitFeels</h2>
+<nav class="level">
+  <div class="level-item has-text-centered">
+    <div>
+      <p class="is-size-3 has-text-weight-semibold">BitFeels</p>
+    </div>
+  </div>
+</nav>
 
-<%= for feel <- @feels do %>
-  <section class="hero is-<%= feel.sentiment |> sentiment() |> elem(0) %>">
-    <div class="hero-body">
-      <div class="container">
-        <h1 class="tweet center">
-          <%= feel.tweet.text %>
-        </h1>
+<%= for {tweet, feels} <- @feels do %>
+  <div class="card">
+    <div class="card-content">
+      <div class="content">
+        <p class="is-size-4 has-text-weight-semibold">
+          <%= tweet.text %>
+        </p>
+
+        <br>
+
+        <time>
+          <%= tweet.created_at %>
+        </time>
+      </div>
+    </div>
+  </div>
+
+  <div class="tile is-ancestor" style="margin-bottom: 0;">
+    <%= for feel <- feels do %>
+      <div class="tile is-child box notification is-<%= feel.sentiment |> sentiment() |> elem(0) %>">
+
         <h2 class="emoji center">
           <%= feel.sentiment |> sentiment() |> elem(1) %>
         </h2>
+
         <h2 class="subtitle center">
           <%= feel.classifier %>
         </h2>
       </div>
-    </div>
-  </section>
+    <% end %>
+  </div>
 <% end %>
-

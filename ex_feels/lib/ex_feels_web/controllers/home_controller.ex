@@ -4,8 +4,15 @@ defmodule ExFeelsWeb.HomeController do
   alias ExFeels.Feel
 
   def home(conn, _params) do
-    feels = Feel.all()
+    feels = group_by_tweet(Feel.all())
 
     render(conn, "home.html", feels: feels)
+  end
+
+  defp group_by_tweet(feels) do
+    feels
+    |> Enum.group_by(&(&1.tweet))
+    |> Enum.into([])
+    |> Enum.sort(&(elem(&1, 0).id >= elem(&2, 0).id))
   end
 end
