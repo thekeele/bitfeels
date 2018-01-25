@@ -13,6 +13,8 @@ defmodule ExFeelsWeb.TwitterApi.Fetch do
   def init(state) do
     IO.puts "starting twitter api fetch process"
 
+    fetch_tweets()
+
     schedule_work()
 
     {:ok, state}
