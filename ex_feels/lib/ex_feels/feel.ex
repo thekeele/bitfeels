@@ -7,6 +7,8 @@ defmodule ExFeels.Feel do
 
   alias ExFeels.{Twitter.Tweet, Repo}
 
+  @env Mix.env()
+
   schema "feels" do
     field :classifier, :string
     field :sentiment, :string
@@ -14,6 +16,22 @@ defmodule ExFeels.Feel do
     belongs_to :tweet, Tweet
 
     timestamps()
+  end
+
+  def generate() do
+    task = Task.async(&binary_classifier/0)
+
+    Task.await(task, 10_000)
+  end
+
+  defp binary_classifier() do
+    "python"
+    |> System.cmd(["binary_classifier.py", "#{@env}"], cd: "../py_feels/binary")
+    |> case do
+      {_, 0} -> :ok
+
+      _ -> :error
+    end
   end
 
   def get(id) do
