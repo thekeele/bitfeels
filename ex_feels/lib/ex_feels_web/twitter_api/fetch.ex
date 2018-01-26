@@ -2,7 +2,6 @@ defmodule ExFeelsWeb.TwitterApi.Fetch do
   use GenServer
 
   alias ExFeelsWeb.TwitterApi
-  alias ExFeels.Twitter.Tweet
 
   @fetch_interval Application.get_env(:ex_feels, :twitter)[:fetch_interval]
 
@@ -11,9 +10,11 @@ defmodule ExFeelsWeb.TwitterApi.Fetch do
   end
 
   def init(state) do
-    IO.puts "starting twitter api fetch process"
+    IO.puts "starting twitter api fetch and feel process"
 
     fetch_tweets()
+
+    generate_feels()
 
     schedule_work()
 
@@ -22,6 +23,8 @@ defmodule ExFeelsWeb.TwitterApi.Fetch do
 
   def handle_info(:fetch, state) do
     fetch_tweets()
+
+    generate_feels()
 
     schedule_work()
 
@@ -42,11 +45,20 @@ defmodule ExFeelsWeb.TwitterApi.Fetch do
       tweets ->
         IO.puts "found #{length(tweets)} tweets"
 
-        Tweet.create_all(tweets)
+        create_all(tweets)
     end
   end
 
   defp schedule_work() do
     Process.send_after(self(), :fetch, @fetch_interval)
+  end
+
+  # domain crossing funs
+  defp create_all(tweets) do
+    ExFeels.Twitter.Tweet.create_all(tweets)
+  end
+
+  defp generate_feels() do
+    ExFeels.Feel.generate()
   end
 end
