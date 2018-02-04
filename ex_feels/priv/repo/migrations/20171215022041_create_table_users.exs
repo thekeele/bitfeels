@@ -15,6 +15,6 @@ defmodule ExFeels.Repo.Migrations.CreateTableUsers do
       timestamps()
     end
 
-    unique_index("users", [:user_id])
+    create index("users", [:user_id], unique: true)
   end
 end
