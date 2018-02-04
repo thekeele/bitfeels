@@ -95,12 +95,3 @@ for clf in feeltimes.classifier.unique():
 
 # write predictions to 'feels' table in database
 stats.to_sql('stats', engine, if_exists='replace', index=False)
-
-#results = results.add_suffix('_count').reset_index()
-    
-#p1 = figure(x_axis_type = "datetime", title="Sentiment over time", tools='lasso_select')    
-#ml_x = [clf_frames[key].inserted_at for key in clf_frames.keys()]
-#ml_y = [clf_frames[key].sentiment for key in clf_frames.keys()]
-#p1.multi_line(ml_x, ml_y, line_color=Spectral[len(ml_x)])
-#p1.scatter([1,2,3,4,5],[2,3,1,4,5])
-#show(p1)
