@@ -2,13 +2,19 @@
 """
 Created on Sat Jan 20 14:50:21 2018
 
-@author: blenderherad
+Pulls feels and tweet times from the bit_feels database and performs
+a time-window average of the sentiments for plotting. pushes means,
+standard devaitions, classifier names and bin times into the 'stats'
+table of bit_feels. Takes two arguments: window and env
+
+window is the width of the time-bin in hours,
+env is "dev" or "prod"
+
+@author: rcehemann
 """
 
 import pandas as pd
 from numpy import linspace, digitize, mean, std
-from bokeh.plotting import figure, show
-from bokeh.palettes import Spectral
 from datetime import datetime
 from sys import argv
 from sqlalchemy import create_engine
@@ -24,7 +30,7 @@ elif argv[2] == "prod":
     window = argv[1]
     env = "bit_feels"
 else:
-    raise EnvironmentError("Environment should be 'dev' or 'prod'")
+    raise EnvironmentError("second argument should be 'dev' or 'prod'")
 
 # set up SQL connection
 engine = create_engine('postgresql+psycopg2://wojak:@localhost/' + env)
@@ -80,7 +86,9 @@ feeltimes.loc[:,'window'] = windows
 times = pd.DataFrame({'time':bins, 'window':list(range(len(bins)))})
 
 # group by classifier and time-window, then compute mean and std-dev for each
-group_stats = feeltimes.groupby(['classifier', 'window'])['sentiment'].apply(mean_and_std)
+group_stats = feeltimes.groupby(['classifier', 'window'])['sentiment'].apply(
+        mean_and_std
+)
 
 # build stats table by iterating through classifiers, copying times
 # splitting mean and std into separate columns then filling NaN values

@@ -2,6 +2,11 @@
 """
 Created on Sat Jan 13 15:51:35 2018
 
+reclassifies all tweets in the bit_feels database,
+for use only when classifiers have been added or changed.
+
+takes one argument: env = "dev" or "prod"
+
 @author: blenderherad
 """
 
