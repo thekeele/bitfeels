@@ -13,10 +13,15 @@ from datetime import datetime
 from sys import argv
 from sqlalchemy import create_engine
 
-# check environment
-if len(argv) < 2 or argv[1] == "dev":
+# check environment, parse arguments
+if len(argv) < 2:
+    window = 48.
     env = "bit_feels_dev"
-elif argv[1] == "prod":
+elif len(argv) < 3 or argv[2] == "dev":
+    window = argv[1]
+    env = "bit_feels_dev"
+elif argv[2] == "prod":
+    window = argv[1]
     env = "bit_feels"
 else:
     raise EnvironmentError("Environment should be 'dev' or 'prod'")
@@ -43,7 +48,7 @@ def time_window(times, window=24.):
     t_max  = max(times.values)
     n_bins = int((t_max - t_min) / 3600 / window)
     bins   = linspace(t_min, t_max, num=n_bins)
-    windows = digitize(times, bins)
+    windows = digitize(times, bins, right=True)
     bins = [datetime.fromtimestamp(t) for t in bins]
     print(len(bins))
     return windows, bins
@@ -69,13 +74,28 @@ feeltimes['inserted_at'] = feeltimes.inserted_at.apply(
         lambda x: x.timestamp()
 )
 
-windows, bins = time_window(feeltimes.loc[:,'inserted_at'], window=48)
-if 'time' not in stats.keys():
-    stats['time'] = bins
-    stats['window'] = list(range(len(bins)))
+windows, bins = time_window(feeltimes.loc[:,'inserted_at'], window=48.)
 feeltimes.loc[:,'window'] = windows
 
-tmp_frame = feeltimes.groupby(['classifier', 'window'])['sentiment'].apply(mean_and_std)
+times = pd.DataFrame({'time':bins, 'window':list(range(len(bins)))})
+
+# group by classifier and time-window, then compute mean and std-dev for each
+group_stats = feeltimes.groupby(['classifier', 'window'])['sentiment'].apply(mean_and_std)
+
+# build stats table by iterating through classifiers, copying times
+# splitting mean and std into separate columns then filling NaN values
+# with zeroes 
+stats = pd.DataFrame(columns=['time', 'classifier', 'mean', 'std'])
+for clf in feeltimes.classifier.unique():
+    tmp = pd.DataFrame(times['time'])
+    tmp[['mean', 'std']] = group_stats[clf].apply(pd.Series)
+    tmp['classifier'] = clf
+    tmp.fillna(0., inplace=True)
+    stats = stats.append(tmp)
+
+# write predictions to 'feels' table in database
+stats.to_sql('stats', engine, if_exists='replace', index=False)
+
 #results = results.add_suffix('_count').reset_index()
     
 #p1 = figure(x_axis_type = "datetime", title="Sentiment over time", tools='lasso_select')    
