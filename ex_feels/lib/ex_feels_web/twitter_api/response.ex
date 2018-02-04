@@ -16,7 +16,7 @@ defmodule ExFeelsWeb.TwitterApi.Response do
   end
 
   defp parse_status_data(status) do
-    keys = ["created_at", "id", "text", "retweet_count", "favorite_count", "lang"]
+    keys = ["created_at", "id", "full_text", "retweet_count", "favorite_count", "lang"]
 
     Map.take(status, keys)
   end

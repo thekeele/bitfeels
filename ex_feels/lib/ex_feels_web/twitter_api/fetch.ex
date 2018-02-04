@@ -32,7 +32,13 @@ defmodule ExFeelsWeb.TwitterApi.Fetch do
   end
 
   defp fetch_tweets() do
-    params = %{"q" => "bitcoin", "count" => 2, "lang" => "en"}
+    params = %{
+      "q" => "bitcoin",
+      "count" => 2,
+      "lang" => "en",
+      "tweet_mode" => "extended" # for 280 char tweets
+    }
+
     IO.inspect params, label: "firing search with params"
 
     case TwitterApi.search(params) do
