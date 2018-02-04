@@ -34,7 +34,7 @@ defmodule ExFeelsWeb.TwitterApi.Fetch do
   defp fetch_tweets() do
     params = %{
       "q" => "bitcoin",
-      "count" => 2,
+      "count" => 10,
       "lang" => "en",
       "tweet_mode" => "extended" # for 280 char tweets
     }
