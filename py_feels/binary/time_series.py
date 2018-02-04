@@ -14,6 +14,8 @@ env is "dev" or "prod"
 """
 
 import pandas as pd
+import pytz
+from dateutil import parser
 from numpy import linspace, digitize, mean, std
 from datetime import datetime
 from sys import argv
@@ -35,14 +37,15 @@ else:
 # set up SQL connection
 engine = create_engine('postgresql+psycopg2://wojak:@localhost/' + env)
 
-def ts_to_td(inserted_at):
+def ts_to_td(created_at):
     """
-        returns the total elapsed seconds from
-        the timestamp to present time.
+        parses the created_at time string
+        and returns a timestamp
     """
-    return (inserted_at - datetime.now()).total_seconds()
+    created_at = parser.parse(created_at)
+    return created_at.timestamp()
 
-def time_window(times, window=24.):
+def time_window(times, window):
     """
         function to partition a time series
         into time windows. takes a numerical value
@@ -56,7 +59,7 @@ def time_window(times, window=24.):
     bins   = linspace(t_min, t_max, num=n_bins)
     windows = digitize(times, bins, right=True)
     bins = [datetime.fromtimestamp(t) for t in bins]
-    print(len(bins))
+    bins = [t.strftime("%a %b %d %H:%M:%S +0000 %Y") for t in bins]
     return windows, bins
 
 def mean_and_std(times):
@@ -64,7 +67,7 @@ def mean_and_std(times):
 
 query  = "SELECT tweet_id, sentiment, classifier FROM feels"
 feels  = pd.read_sql(query, engine)
-query  = "SELECT inserted_at, tweet_id FROM tweets"
+query  = "SELECT created_at, tweet_id FROM tweets"
 tweets = pd.read_sql(query, engine)
 
 # merge on tweet id to get tweet times 
@@ -76,17 +79,17 @@ feeltimes = feeltimes[feeltimes['sentiment'] != "0"].reset_index(drop=True)
 feeltimes.loc[:,'sentiment'] = feeltimes.sentiment.apply(lambda x: int(x))
 
 stats = pd.DataFrame()
-feeltimes['inserted_at'] = feeltimes.inserted_at.apply(
-        lambda x: x.timestamp()
+feeltimes['created_at'] = feeltimes.created_at.apply(
+        ts_to_td
 )
 
-windows, bins = time_window(feeltimes.loc[:,'inserted_at'], window=48.)
-feeltimes.loc[:,'window'] = windows
+assignments, bins = time_window(feeltimes.loc[:,'created_at'], window)
+feeltimes.loc[:,'assignment'] = assignments
 
 times = pd.DataFrame({'time':bins, 'window':list(range(len(bins)))})
 
 # group by classifier and time-window, then compute mean and std-dev for each
-group_stats = feeltimes.groupby(['classifier', 'window'])['sentiment'].apply(
+group_stats = feeltimes.groupby(['classifier', 'assignment'])['sentiment'].apply(
         mean_and_std
 )
 
