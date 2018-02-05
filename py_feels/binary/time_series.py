@@ -18,6 +18,7 @@ from dateutil import parser
 from numpy import linspace, digitize, mean, std
 from datetime import datetime
 from sys import argv
+from math import ceil
 from sqlalchemy import create_engine
 
 # check environment, parse arguments
@@ -48,7 +49,7 @@ def time_bins(times, window):
     """
     t_min  = min(times)
     t_max  = max(times)
-    n_bins = int((t_max - t_min) / 3600 / window)
+    n_bins = ceil((t_max - t_min) / 3600 / window)
     fltbins = linspace(t_min, t_max, num=n_bins)
     strbins = [datetime.fromtimestamp(t) for t in fltbins]
     strbins = [t.strftime("%a %b %d %H:%M:%S +0000 %Y") for t in strbins]
@@ -68,7 +69,7 @@ feels.rename(columns={'tweet_id':'id'}, inplace=True)
 
 # merge on tweet id to get tweet times 
 feeltimes = pd.merge(feels, tweets, on='id')
-del feels, tweets
+#del feels, tweets
 
 # transform datetimes to timestamps
 feeltimes['created_at'] = feeltimes.created_at.apply(
