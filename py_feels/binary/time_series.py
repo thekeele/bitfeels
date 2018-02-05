@@ -68,7 +68,7 @@ feels.rename(columns={'tweet_id':'id'}, inplace=True)
 
 # merge on tweet id to get tweet times 
 feeltimes = pd.merge(feels, tweets, on='id')
-#del feels, tweets
+del feels, tweets
 
 # transform datetimes to timestamps
 feeltimes['created_at'] = feeltimes.created_at.apply(
