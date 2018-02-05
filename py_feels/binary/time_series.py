@@ -22,17 +22,12 @@ from math import ceil
 from sqlalchemy import create_engine
 
 # check environment, parse arguments
-if len(argv) < 2:
-    window = 48.
+if len(argv) < 2 or argv[1] == "dev":
     env = "bit_feels_dev"
-elif len(argv) < 3 or argv[2] == "dev":
-    window = float(argv[1])
-    env = "bit_feels_dev"
-elif argv[2] == "prod":
-    window = float(argv[1])
+elif argv[1] == "prod":
     env = "bit_feels"
 else:
-    raise EnvironmentError("second argument should be 'dev' or 'prod'")
+    raise EnvironmentError("Environment should be 'dev' or 'prod'")
 
 def ts_to_td(created_at):
     """
@@ -77,7 +72,7 @@ feeltimes['created_at'] = feeltimes.created_at.apply(
 )
 
 # compute time bins, store string labels in data frame
-fltbins, strbins = time_bins(feeltimes.created_at.values, window)
+fltbins, strbins = time_bins(feeltimes.created_at.values, 48.)
 times = pd.DataFrame({'time':strbins, 'window':list(range(len(strbins)))})
 
 # prep the feels for binning
