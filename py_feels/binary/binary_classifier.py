@@ -30,7 +30,7 @@ else:
 # connect to  SQL database, query for last item in 'tweets' table
 engine = create_engine('postgresql+psycopg2://wojak:@localhost/' + env)
 
-query  = "SELECT id, text FROM tweets"
+query  = "SELECT tweet_id, text FROM tweets"
 tweets = pd.read_sql(query, engine)
 
 query  = "SELECT DISTINCT tweet_id FROM feels"
@@ -38,10 +38,10 @@ classified = pd.read_sql(query, engine)
 
 # determine those unique tweets for which no feels exist
 unclassified = list(
-    set(tweets.id.values) - set(classified.tweet_id.values)
+    set(tweets.tweet_id.values) - set(classified.tweet_id.values)
 )
 
-tweets = tweets[tweets['id'].isin(unclassified)]
+tweets = tweets[tweets['tweet_id'].isin(unclassified)]
 
 # only predict sentiment if there's text data
 if not tweets.text.empty:
@@ -64,7 +64,7 @@ if not tweets.text.empty:
         feels = pd.DataFrame()
         feels['sentiment']   = list(map(str, sentiments))
         feels['classifier']  = name
-        feels['tweet_id']    = tweets.id.values
+        feels['tweet_id']    = tweets.tweet_id.values
 
         # store prediction time
         time_now = str(datetime.datetime.now())
