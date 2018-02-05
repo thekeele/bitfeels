@@ -41,7 +41,8 @@ defmodule ExFeels.Mixfile do
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
-      {:hackney, "~> 1.8"}
+      {:hackney, "~> 1.8"},
+      {:timex, "~> 3.1"}
     ]
   end
 
