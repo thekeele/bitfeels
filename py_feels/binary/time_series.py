@@ -14,7 +14,6 @@ env is "dev" or "prod"
 """
 
 import pandas as pd
-import pytz
 from dateutil import parser
 from numpy import linspace, digitize, mean, std
 from datetime import datetime
@@ -34,9 +33,6 @@ elif argv[2] == "prod":
 else:
     raise EnvironmentError("second argument should be 'dev' or 'prod'")
 
-# set up SQL connection
-engine = create_engine('postgresql+psycopg2://wojak:@localhost/' + env)
-
 def ts_to_td(created_at):
     """
         parses the created_at time string
@@ -45,25 +41,30 @@ def ts_to_td(created_at):
     created_at = parser.parse(created_at)
     return created_at.timestamp()
 
-def time_window(times, window):
+def time_bins(times, window):
     """
-        function to partition a time series
-        into time windows. takes a numerical value
-        in HOURS for the requested time window.
-        bins are statically sized and the number of bins
-        is calcluated based on the earliest timestamp in the db
+        takes the time data from all tweets and computes
+        bins based on the window width (in hours). returns bins
     """
-    t_min  = min(times.values)
-    t_max  = max(times.values)
+    t_min  = min(times)
+    t_max  = max(times)
     n_bins = int((t_max - t_min) / 3600 / window)
-    bins   = linspace(t_min, t_max, num=n_bins)
-    windows = digitize(times, bins, right=True)
-    bins = [datetime.fromtimestamp(t) for t in bins]
-    bins = [t.strftime("%a %b %d %H:%M:%S +0000 %Y") for t in bins]
-    return windows, bins
+    fltbins = linspace(t_min, t_max, num=n_bins)
+    strbins = [datetime.fromtimestamp(t) for t in fltbins]
+    strbins = [t.strftime("%a %b %d %H:%M:%S +0000 %Y") for t in strbins]
+    return fltbins, strbins
+
+def time_window(times, bins):
+    """
+        partitions times into bins. returns bin assignments
+    """
+    return 
 
 def mean_and_std(times):
     return mean(times), std(times)
+
+# set up SQL connection
+engine = create_engine('postgresql+psycopg2://wojak:@localhost/' + env)
 
 query  = "SELECT tweet_id, sentiment, classifier FROM feels"
 feels  = pd.read_sql(query, engine)
@@ -74,19 +75,22 @@ tweets = pd.read_sql(query, engine)
 feeltimes = pd.merge(feels, tweets, on='tweet_id')
 del feels, tweets
 
-# prep the feels for binning
-feeltimes = feeltimes[feeltimes['sentiment'] != "0"].reset_index(drop=True)
-feeltimes.loc[:,'sentiment'] = feeltimes.sentiment.apply(lambda x: int(x))
-
-stats = pd.DataFrame()
+# transform datetimes to timestamps
 feeltimes['created_at'] = feeltimes.created_at.apply(
         ts_to_td
 )
 
-assignments, bins = time_window(feeltimes.loc[:,'created_at'], window)
-feeltimes.loc[:,'assignment'] = assignments
+# compute time bins, store string labels in data frame
+fltbins, strbins = time_bins(feeltimes.created_at.values, window)
+times = pd.DataFrame({'time':strbins, 'window':list(range(len(strbins)))})
 
-times = pd.DataFrame({'time':bins, 'window':list(range(len(bins)))})
+# prep the feels for binning
+feeltimes = feeltimes[feeltimes['sentiment'] != "0"].reset_index(drop=True)
+feeltimes.loc[:,'sentiment'] = feeltimes.sentiment.apply(lambda x: int(x))
+
+# compute bin assignments and add them to feeltimes frame
+assignments = digitize(feeltimes.loc[:,'created_at'], fltbins, right=True)
+feeltimes.loc[:,'assignment'] = assignments
 
 # group by classifier and time-window, then compute mean and std-dev for each
 group_stats = feeltimes.groupby(['classifier', 'assignment'])['sentiment'].apply(
