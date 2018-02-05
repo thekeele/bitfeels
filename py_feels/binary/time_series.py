@@ -25,10 +25,10 @@ if len(argv) < 2:
     window = 48.
     env = "bit_feels_dev"
 elif len(argv) < 3 or argv[2] == "dev":
-    window = argv[1]
+    window = float(argv[1])
     env = "bit_feels_dev"
 elif argv[2] == "prod":
-    window = argv[1]
+    window = float(argv[1])
     env = "bit_feels"
 else:
     raise EnvironmentError("second argument should be 'dev' or 'prod'")
@@ -54,12 +54,6 @@ def time_bins(times, window):
     strbins = [t.strftime("%a %b %d %H:%M:%S +0000 %Y") for t in strbins]
     return fltbins, strbins
 
-def time_window(times, bins):
-    """
-        partitions times into bins. returns bin assignments
-    """
-    return 
-
 def mean_and_std(times):
     return mean(times), std(times)
 
@@ -68,12 +62,13 @@ engine = create_engine('postgresql+psycopg2://wojak:@localhost/' + env)
 
 query  = "SELECT tweet_id, sentiment, classifier FROM feels"
 feels  = pd.read_sql(query, engine)
-query  = "SELECT created_at, tweet_id FROM tweets"
+query  = "SELECT created_at, id FROM tweets"
 tweets = pd.read_sql(query, engine)
+feels.rename(columns={'tweet_id':'id'}, inplace=True)
 
 # merge on tweet id to get tweet times 
-feeltimes = pd.merge(feels, tweets, on='tweet_id')
-del feels, tweets
+feeltimes = pd.merge(feels, tweets, on='id')
+#del feels, tweets
 
 # transform datetimes to timestamps
 feeltimes['created_at'] = feeltimes.created_at.apply(
