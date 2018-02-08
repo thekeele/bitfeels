@@ -1,4 +1,7 @@
+@import url(//fonts.googleapis.com/css?family=Open+Sans:400,700);
+
 @import "bulma";
+@import "chart";
 
 .center {
   text-align: center;
@@ -16,4 +19,8 @@ img {
   display: block;
   margin: auto;
   width: 40%;
+}
+
+svg {
+  font: 14px 'Open Sans';
 }
