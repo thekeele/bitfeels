@@ -13,6 +13,9 @@ env is "dev" or "prod"
 @author: rcehemann
 """
 
+# constant window width
+WINDOW = 48
+
 import pandas as pd
 from dateutil import parser
 from numpy import linspace, digitize, mean, std
@@ -44,7 +47,7 @@ def time_bins(times, window):
     """
     t_min  = min(times)
     t_max  = max(times)
-    n_bins = ceil((t_max - t_min) / 3600 / window)
+    n_bins = ceil((t_max - t_min) / 3600 / float(window))
     fltbins = linspace(t_min, t_max, num=n_bins)
     strbins = [datetime.fromtimestamp(t) for t in fltbins]
     strbins = [t.strftime("%a %b %d %H:%M:%S +0000 %Y") for t in strbins]
@@ -62,7 +65,7 @@ query  = "SELECT created_at, id FROM tweets"
 tweets = pd.read_sql(query, engine)
 feels.rename(columns={'tweet_id':'id'}, inplace=True)
 
-# merge on tweet id to get tweet times 
+# merge on tweet id to get tweet times
 feeltimes = pd.merge(feels, tweets, on='id')
 del feels, tweets
 
@@ -72,7 +75,7 @@ feeltimes['created_at'] = feeltimes.created_at.apply(
 )
 
 # compute time bins, store string labels in data frame
-fltbins, strbins = time_bins(feeltimes.created_at.values, 48.)
+fltbins, strbins = time_bins(feeltimes.created_at.values, WINDOW)
 times = pd.DataFrame({'time':strbins, 'window':list(range(len(strbins)))})
 
 # prep the feels for binning
@@ -90,7 +93,7 @@ group_stats = feeltimes.groupby(['classifier', 'assignment'])['sentiment'].apply
 
 # build stats table by iterating through classifiers, copying times
 # splitting mean and std into separate columns then filling NaN values
-# with zeroes 
+# with zeroes
 stats = pd.DataFrame(columns=['time', 'classifier', 'mean', 'std'])
 for clf in feeltimes.classifier.unique():
     tmp = pd.DataFrame(times['time'])
