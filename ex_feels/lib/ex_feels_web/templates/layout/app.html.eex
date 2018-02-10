@@ -9,9 +9,6 @@
 
     <title>BitFeels</title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
-    <style type="text/css">
-    </style>
-
   </head>
 
   <body>
@@ -24,12 +21,9 @@
 
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
   </body>
-  
+
   <script src="https://d3js.org/d3.v3.min.js"></script>
-
   <script>
-    /* */
-
     var rawDataJSON =  [
       {
         "date": "2014-08-01",
@@ -590,7 +584,7 @@
 
     var parseDate  = d3.time.format('%Y-%m-%d').parse;
 
-    // dataJSON rawDataJSON 
+    // dataJSON rawDataJSON
     // markersJSON rawMarkersJSON
 
     var data = rawDataJSON.map(function (d) {
