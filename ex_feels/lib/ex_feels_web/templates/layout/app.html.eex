@@ -24,12 +24,10 @@
 
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
   </body>
-  
+
   <script src="https://d3js.org/d3.v3.min.js"></script>
 
   <script>
-    /* */
-
     var rawDataJSON =  [
       {
         "date": "2014-08-01",
@@ -344,30 +342,6 @@
         "pct95": 5806
       }];
 
-    var rawMarkersJSON = [
-      {
-        "date": "2014-08-06",
-        "type": "Client",
-        "version": "2.0"
-      },
-      {
-        "date": "2014-08-20",
-        "type": "Client",
-        "version": "2.1"
-      },
-      {
-        "date": "2014-08-27",
-        "type": "Server",
-        "version": "3.5"
-      },
-      {
-        "date": "2014-09-03",
-        "type": "Client",
-        "version": "2.2"
-      }
-    ];
-
-
     function addAxesAndLegend (svg, xAxis, yAxis, margin, chartWidth, chartHeight) {
       var legendWidth  = 200,
           legendHeight = 100;
@@ -502,58 +476,11 @@
         .attr('clip-path', 'url(#rect-clip)');
     }
 
-    function addMarker (marker, svg, chartHeight, x) {
-      var radius = 32,
-          xPos = x(marker.date) - radius - 3,
-          yPosStart = chartHeight - radius - 3,
-          yPosEnd = (marker.type === 'Client' ? 80 : 160) + radius - 3;
-
-      var markerG = svg.append('g')
-        .attr('class', 'marker '+marker.type.toLowerCase())
-        .attr('transform', 'translate(' + xPos + ', ' + yPosStart + ')')
-        .attr('opacity', 0);
-
-      markerG.transition()
-        .duration(1000)
-        .attr('transform', 'translate(' + xPos + ', ' + yPosEnd + ')')
-        .attr('opacity', 1);
-
-      markerG.append('path')
-        .attr('d', 'M' + radius + ',' + (chartHeight-yPosStart) + 'L' + radius + ',' + (chartHeight-yPosStart))
-        .transition()
-          .duration(1000)
-          .attr('d', 'M' + radius + ',' + (chartHeight-yPosEnd) + 'L' + radius + ',' + (radius*2));
-
-      markerG.append('circle')
-        .attr('class', 'marker-bg')
-        .attr('cx', radius)
-        .attr('cy', radius)
-        .attr('r', radius);
-
-      markerG.append('text')
-        .attr('x', radius)
-        .attr('y', radius*0.9)
-        .text(marker.type);
-
-      markerG.append('text')
-        .attr('x', radius)
-        .attr('y', radius*1.5)
-        .text(marker.version);
+    function startTransitions (svg, chartWidth, chartHeight, rectClip, x) {
+      rectClip.transition().attr('width', chartWidth);
     }
 
-    function startTransitions (svg, chartWidth, chartHeight, rectClip, markers, x) {
-      rectClip.transition()
-        .duration(1000*markers.length)
-        .attr('width', chartWidth);
-
-      markers.forEach(function (marker, i) {
-        setTimeout(function () {
-          addMarker(marker, svg, chartHeight, x);
-        }, 1000 + 500*i);
-      });
-    }
-
-    function makeChart (data, markers) {
+    function makeChart (data) {
       var svgWidth  = 960,
           svgHeight = 500,
           margin = { top: 20, right: 20, bottom: 40, left: 40 },
@@ -585,13 +512,10 @@
 
       addAxesAndLegend(svg, xAxis, yAxis, margin, chartWidth, chartHeight);
       drawPaths(svg, data, x, y);
-      startTransitions(svg, chartWidth, chartHeight, rectClip, markers, x);
+      startTransitions(svg, chartWidth, chartHeight, rectClip, x);
     }
 
     var parseDate  = d3.time.format('%Y-%m-%d').parse;
-
-    // dataJSON rawDataJSON 
-    // markersJSON rawMarkersJSON
 
     var data = rawDataJSON.map(function (d) {
       return {
@@ -604,14 +528,6 @@
       };
     });
 
-    var markers = rawMarkersJSON.map(function (marker) {
-      return {
-        date: parseDate(marker.date),
-        type: marker.type,
-        version: marker.version
-      };
-    });
-
-    makeChart(data, markers);
+    makeChart(data);
   </script>
 </html>
