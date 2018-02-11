@@ -1,5 +1,5 @@
 @import "bulma";
-@import "chart";
+@import "timefeels";
 
 .center {
   text-align: center;
@@ -17,8 +17,4 @@ img {
   display: block;
   margin: auto;
   width: 40%;
-}
-
-svg {
-  font: 14px 'Open Sans';
 }
