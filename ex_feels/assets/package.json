@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "bulma": "^0.6.1",
+    "d3": "^3.5.17",
     "phoenix": "file:../deps/phoenix",
     "phoenix_html": "file:../deps/phoenix_html"
   },
@@ -14,7 +15,6 @@
     "babel-brunch": "6.1.1",
     "brunch": "2.10.9",
     "clean-css-brunch": "2.10.0",
-    "d3": "^4.13.0",
     "sass-brunch": "^2.10.4",
     "uglify-js-brunch": "2.10.0"
   }

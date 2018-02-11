@@ -12,6 +12,7 @@
 // If you no longer want to use a dependency, remember
 // to also remove its path from "config.paths.watched".
 import "phoenix_html"
+import "d3"
 
 // Import local files
 //
@@ -20,4 +21,4 @@ import "phoenix_html"
 
 // import socket from "./socket"
 import "./timefeels"
-import "node_modules/d3"
+
