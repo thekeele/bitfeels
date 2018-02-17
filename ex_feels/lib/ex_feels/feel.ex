@@ -53,6 +53,6 @@ defmodule ExFeels.Feel do
       sentiment: f.sentiment,
       classifier: f.classifier
     })
-    |> Repo.all()
+    |> Repo.paginate()
   end
 end
