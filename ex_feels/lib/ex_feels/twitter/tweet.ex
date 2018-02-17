@@ -27,6 +27,7 @@ defmodule ExFeels.Twitter.Tweet do
 
   def changeset(struct \\ %__MODULE__{}, params \\ %{}, user \\ %User{}) do
     params = Map.put(params, "tweet_id", params["id"])
+    params = Map.put(params, "text", params["full_text"])
 
     struct
     |> cast(params, @fields)
