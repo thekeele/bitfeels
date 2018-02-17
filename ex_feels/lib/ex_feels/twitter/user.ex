@@ -56,11 +56,7 @@ defmodule ExFeels.Twitter.User do
     end
   end
 
-  def get(id) do
-    Repo.get(__MODULE__, id)
-  end
-
-  def all() do
-    Repo.all(__MODULE__)
+  def get(user_id) do
+    Repo.get_by(__MODULE__, user_id: user_id)
   end
 end
