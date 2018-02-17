@@ -14,7 +14,7 @@ defmodule ExFeels.Application do
       supervisor(ExFeelsWeb.Endpoint, []),
       # Start your own worker by calling: ExFeels.Worker.start_link(arg1, arg2, arg3)
       # worker(ExFeels.Worker, [arg1, arg2, arg3]),
-      worker(ExFeelsWeb.TwitterApi.Fetch, [])
+      worker(ExFeelsWeb.TwitterApi.Worker, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

@@ -1,16 +1,17 @@
-defmodule ExFeelsWeb.TwitterApi.Fetch do
+defmodule ExFeelsWeb.TwitterApi.Worker do
   @moduledoc false
 
   use GenServer
 
-  @fetch_interval Application.get_env(:ex_feels, :twitter)[:fetch_interval]
+  @search_interval 1 * 1000 * 60 * 60 # one hour
+  # @search_interval 1 * 1000 * 60 # one minute
 
   def start_link() do
     GenServer.start_link(__MODULE__, %{})
   end
 
   def init(state) do
-    fetch_tweets()
+    search_tweets()
 
     generate_feels()
 
@@ -19,8 +20,8 @@ defmodule ExFeelsWeb.TwitterApi.Fetch do
     {:ok, state}
   end
 
-  def handle_info(:fetch, state) do
-    fetch_tweets()
+  def handle_info(:search, state) do
+    search_tweets()
 
     generate_feels()
 
@@ -29,8 +30,8 @@ defmodule ExFeelsWeb.TwitterApi.Fetch do
     {:noreply, state}
   end
 
-  defp fetch_tweets() do
-    case ExFeelsWeb.TwitterApi.search_bitcoin() do
+  defp search_tweets() do
+    case ExFeelsWeb.TwitterApi.search() do
       :error -> IO.puts "error contacting twitter"
 
       :empty -> IO.puts "empty response from twitter"
@@ -44,6 +45,6 @@ defmodule ExFeelsWeb.TwitterApi.Fetch do
   end
 
   defp schedule_work() do
-    Process.send_after(self(), :fetch, @fetch_interval)
+    Process.send_after(self(), :search, @search_interval)
   end
 end
