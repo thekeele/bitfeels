@@ -333,12 +333,6 @@ function addAxes (svg, xAxis, yAxis, chartHeight) {
 }
 
 function drawPaths (svg, data, x, y) {
-  var upperOuterArea = d3.svg.area()
-    .interpolate('basis')
-    .x (function (d) { return x(d.date) || 1; })
-    .y0(function (d) { return y(d.pct95); })
-    .y1(function (d) { return y(d.pct75); });
-
   var upperInnerArea = d3.svg.area()
     .interpolate('basis')
     .x (function (d) { return x(d.date) || 1; })
@@ -356,23 +350,7 @@ function drawPaths (svg, data, x, y) {
     .y0(function (d) { return y(d.pct50); })
     .y1(function (d) { return y(d.pct25); });
 
-  var lowerOuterArea = d3.svg.area()
-    .interpolate('basis')
-    .x (function (d) { return x(d.date) || 1; })
-    .y0(function (d) { return y(d.pct25); })
-    .y1(function (d) { return y(d.pct05); });
-
   svg.datum(data);
-
-  svg.append('path')
-    .attr('class', 'area upper outer')
-    .attr('d', upperOuterArea)
-    .attr('clip-path', 'url(#rect-clip)');
-
-  svg.append('path')
-    .attr('class', 'area lower outer')
-    .attr('d', lowerOuterArea)
-    .attr('clip-path', 'url(#rect-clip)');
 
   svg.append('path')
     .attr('class', 'area upper inner')
@@ -395,8 +373,8 @@ function startTransitions (chartWidth, rectClip) {
 }
 
 function makeChart (data) {
-  var svgWidth  = 960,
-      svgHeight = 500,
+  var svgWidth  = 1024,
+      svgHeight = 450,
       margin = { top: 20, right: 20, bottom: 40, left: 40 },
       chartWidth  = svgWidth  - margin.left - margin.right,
       chartHeight = svgHeight - margin.top  - margin.bottom;
