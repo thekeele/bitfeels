@@ -38,3 +38,14 @@
     <% end %>
   </div>
 <% end %>
+
+<div class="level">
+  <div class="level-left">
+    Feels: <%= @page.total_entries %>
+  </div>
+  <div class="level-item">
+    <%= if @page.total_pages > 1 do %>
+      <%= pagination_links(@page, previous: left_arrow(), next: right_arrow()) %>
+    <% end %>
+  </div>
+</div>
