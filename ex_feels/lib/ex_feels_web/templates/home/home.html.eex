@@ -1,11 +1,3 @@
-<nav class="level">
-  <div class="level-item has-text-centered">
-    <div>
-      <p class="is-size-3 has-text-weight-semibold">BitFeels</p>
-    </div>
-  </div>
-</nav>
-
 <%= for {tweet, feels} <- @feels do %>
   <div class="card">
     <div class="card-content">
