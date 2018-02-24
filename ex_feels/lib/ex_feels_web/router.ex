@@ -19,6 +19,12 @@ defmodule ExFeelsWeb.Router do
     get "/", HomeController, :home
   end
 
+  scope "/bitfeels/api", ExFeelsWeb do
+    pipe_through :api
+
+    get "/stats", StatsController, :index
+  end
+
   # Other scopes may use custom stacks.
   # scope "/bitfeels/api", ExFeelsWeb do
   #   pipe_through :api
