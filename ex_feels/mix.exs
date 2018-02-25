@@ -5,7 +5,7 @@ defmodule ExFeels.Mixfile do
     [
       app: :ex_feels,
       version: "1.1.0",
-      elixir: "~> 1.4",
+      elixir: "~> 1.6",
       elixirc_paths: elixirc_paths(Mix.env),
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
@@ -42,7 +42,7 @@ defmodule ExFeels.Mixfile do
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
       {:hackney, "~> 1.8"},
-      {:timex, "~> 3.1"}
+      {:timex, "~> 3.2"}
     ]
   end
 
