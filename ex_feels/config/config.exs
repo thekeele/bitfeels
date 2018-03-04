@@ -17,6 +17,10 @@ config :ex_feels, ExFeelsWeb.Endpoint,
   pubsub: [name: ExFeels.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
+config :scrivener_html,
+  routes_helper: ExFeelsWeb.Router.Helpers,
+  view_style: :bulma
+
 config :ex_feels, :twitter,
   consumer_key: System.get_env("TWITTER_CONSUMER_KEY"),
   consumer_secret: System.get_env("TWITTER_CONSUMER_SECRET"),

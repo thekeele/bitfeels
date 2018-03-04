@@ -76,9 +76,10 @@ defmodule ExFeels.Feel do
     |> Repo.one()
   end
 
-  def all() do
+  def all(params) do
     __MODULE__
     |> join(:inner, [f], t in Tweet, f.tweet_id == t.id)
+    |> order_by([f, t], desc: t.id)
     |> select([f, t], %{
       tweet: %{
         id: t.id,
@@ -88,6 +89,6 @@ defmodule ExFeels.Feel do
       sentiment: f.sentiment,
       classifier: f.classifier
     })
-    |> Repo.all()
+    |> Repo.paginate(params)
   end
 end
