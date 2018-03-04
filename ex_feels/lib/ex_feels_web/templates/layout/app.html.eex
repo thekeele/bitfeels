@@ -12,15 +12,6 @@
   </head>
 
   <body>
-    <!--<p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
-    <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>-->
-
-    <%= render "header.html" %>
-
-    <div class="container">
-      <div class="has-text-centered" id="timefeels"></div>
-    </div>
-
     <main role="main">
       <%= render @view_module, @view_template, assigns %>
     </main>

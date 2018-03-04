@@ -1,3 +1,23 @@
+<nav class="navbar is-dark" style="bottom-margin: 50px;">
+  <div class="navbar-brand level-item has-text-centered">
+    <img src="/images/brain.jpg" alt="Wojak" height="100px">
+    <p class="navbar-item is-size-1 has-text-weight-semibold">BitFeels</p>
+    <div class="navbar-stop navbar-item">
+      <table class="level-item has-text-centered">
+        <%= for {name, count} <- @counts do %>
+          <tr><td>
+            <%= "#{count} #{name}" %>
+          </td></tr>
+        <% end %>
+      </table>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="has-text-centered" id="timefeels"></div>
+</div>
+
 <%= for {tweet, feels} <- @feels do %>
   <div class="card">
     <div class="card-content">
