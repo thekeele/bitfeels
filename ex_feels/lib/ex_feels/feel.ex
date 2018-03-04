@@ -5,9 +5,12 @@ defmodule ExFeels.Feel do
 
   import Ecto.Query
 
+  require Logger
+
   alias ExFeels.{Twitter.Tweet, Repo}
 
   @env Mix.env()
+  @py_feels [:binary_classifier, :time_series]
 
   schema "feels" do
     field :classifier, :string
@@ -18,20 +21,52 @@ defmodule ExFeels.Feel do
     timestamps()
   end
 
-  def generate() do
-    task = Task.async(&binary_classifier/0)
+  def generate_feels(py_feel) do
+    task = Task.async(fn -> run_script(py_feel) end)
 
     Task.await(task, 10_000)
   end
 
-  defp binary_classifier() do
-    "python"
-    |> System.cmd(["binary_classifier.py", "#{@env}"], cd: "../py_feels/binary")
-    |> case do
-      {_, 0} -> :ok
+  defp run_script(py_feel) when py_feel in @py_feels do
+    py_feel = Atom.to_string(py_feel)
 
-      _ -> :error
+    Logger.info fn ->
+      """
+        fired async task #{py_feel}
+      """
+      end
+
+    "python"
+    |> System.cmd(["#{py_feel}.py", "#{@env}"], cd: "../py_feels/binary")
+    |> case do
+      {_, 0} ->
+        Logger.info fn ->
+        """
+          task #{py_feel} successful
+        """
+        end
+
+        :ok
+
+      _ ->
+        Logger.info fn ->
+        """
+          task #{py_feel} failed
+        """
+        end
+
+        :error
     end
+  end
+
+  defp run_script(py_feel) do
+    Logger.info fn ->
+    """
+      unknown #{py_feel} feel
+    """
+    end
+
+    :error
   end
 
   def get(id) do
