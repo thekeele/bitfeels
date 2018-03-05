@@ -50,3 +50,22 @@
     <% end %>
   </div>
 <% end %>
+
+<footer class="footer">
+  <div class="level">
+    <div class="level-item">
+      <%= if @page.total_pages > 1 do %>
+        <%= pagination_links(@page, previous: left_arrow(), next: right_arrow()) %>
+      <% end %>
+    </div>
+  </div>
+  <div class="container">
+    <div class="content has-text-centered">
+      <p>
+        <strong>BitFeels</strong>. The source code is on
+        <a href="https://github.com/thekeele/bitfeels">github</a>.
+        May your candles be green.
+      </p>
+    </div>
+  </div>
+</footer>

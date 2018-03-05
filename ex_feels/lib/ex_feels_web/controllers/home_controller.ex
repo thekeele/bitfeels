@@ -11,13 +11,18 @@ defmodule ExFeelsWeb.HomeController do
         :users => User.count()
     }
 
-    render(conn, "home.html", feels: feels, counts: counts)
+    page = Feel.all(page: current_page, page_size: 24)
+
+    render(conn, "home.html",
+      page: page,
+      feels: group_by_tweet(page.entries),
+      counts: counts
+    )
   end
 
   defp group_by_tweet(feels) do
     feels
     |> Enum.group_by(&(&1.tweet))
     |> Enum.into([])
-    |> Enum.sort(&(elem(&1, 0).id >= elem(&2, 0).id))
   end
 end
