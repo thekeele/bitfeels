@@ -4,16 +4,17 @@ defmodule ExFeelsWeb.HomeController do
   alias ExFeels.{Feel, Stat, Twitter.Tweet, Twitter.User}
 
   def home(conn, params) do
+
+    current_page = params["page"] || 1
+
+    page = Feel.all(page: current_page, page_size: 24)
+
     counts = %{
         :feels => Feel.count(),
         :tweets => Tweet.count(),
         :users => User.count(),
         :stats => Stat.count()
     }
-
-    current_page = params["page"] || 1
-
-    page = Feel.all(page: current_page, page_size: 24)
 
     render(conn, "home.html",
       page: page,
