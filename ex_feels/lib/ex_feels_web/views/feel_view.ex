@@ -1,4 +1,4 @@
-defmodule ExFeelsWeb.HomeView do
+defmodule ExFeelsWeb.FeelView do
   use ExFeelsWeb, :view
 
   import Scrivener.HTML

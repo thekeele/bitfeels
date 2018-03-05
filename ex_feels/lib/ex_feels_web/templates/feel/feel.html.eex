@@ -1,17 +1,17 @@
 <nav class="navbar is-dark" style="bottom-margin: 50px;">
   <div class="navbar-brand level-item has-text-centered">
-    <img src="/images/brain.jpg" alt="Wojak" style="width:110px;height:100px">
-    <p class="navbar-item is-size-1 has-text-weight-semibold">BitFeels</p>
-    <div class="navbar-stop navbar-item">
-      <table style="width:120px;height:100px;padding:10px">
-        <%= for {name, count} <- @counts do %>
-          <tr>
-            <td><b><%= "#{count}" %></b></td>
-            <td><i><%= "#{name}" %></i></td>
-          </td></tr>
-        <% end %>
-      </table>
-    </div>
+    <img src="/images/brain.jpg" alt="Wojak" style="width:55px;height:50px">
+
+    <p class="navbar-item is-size-3 has-text-weight-semibold">bitfeels</p>
+  </div>
+
+  <div class="navbar-end">
+    <%= for {name, count} <- @counts do %>
+      <div style="padding-left: 50px;padding-right:20px">
+        <p class="heading"><%= "#{name}" %></p>
+        <p class="title is-size-4" style="color:white"><%= "#{count}" %></p>
+      </div>
+    <% end %>
   </div>
 </nav>
 
@@ -63,9 +63,8 @@
   <div class="container">
     <div class="content has-text-centered">
       <p>
-        <strong>BitFeels</strong>. The source code is on
+        <strong>bitfeels</strong>. the source code is on
         <a href="https://github.com/thekeele/bitfeels">github</a>.
-        May your candles be green.
       </p>
     </div>
   </div>
