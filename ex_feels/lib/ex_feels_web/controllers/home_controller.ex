@@ -3,21 +3,27 @@ defmodule ExFeelsWeb.HomeController do
 
   alias ExFeels.{Feel, Twitter.Tweet, Twitter.User}
 
-  def home(conn, _params) do
-    feels = group_by_tweet(Feel.all())
+  def home(conn, params) do
+    current_page = params["page"] || 1
+
+    page = Feel.all(page: current_page, page_size: 24)
+
     counts = %{
         :feels => Feel.count(),
         :tweets => Tweet.count(),
         :users => User.count()
     }
 
-    render(conn, "home.html", feels: feels, counts: counts)
+    render(conn, "home.html",
+      page: page,
+      feels: group_by_tweet(page.entries),
+      counts: counts
+    )
   end
 
   defp group_by_tweet(feels) do
     feels
     |> Enum.group_by(&(&1.tweet))
     |> Enum.into([])
-    |> Enum.sort(&(elem(&1, 0).id >= elem(&2, 0).id))
   end
 end

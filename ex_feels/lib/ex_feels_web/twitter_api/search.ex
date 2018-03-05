@@ -2,8 +2,7 @@ defmodule ExFeelsWeb.TwitterApi.Search do
 
   use Timex
 
-  def build_search_params(%{crypto: currency, search: window})
-      when is_binary(currency) do
+  def build_search_params(%{crypto: currency, search: window}) do
     query = URI.encode(
       "#{currency} since:#{last(window)}"
     )
@@ -16,8 +15,6 @@ defmodule ExFeelsWeb.TwitterApi.Search do
       "tweet_mode" => "extended" # for 280 char tweets
     }
   end
-  def build_search_params(_),
-    do: build_search_params(%{crypto: "bitcoin", search: [months: -1]})
 
   defp last(search_window) do
     %{year: year, month: month, day: day} =

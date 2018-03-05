@@ -4,7 +4,7 @@ defmodule ExFeels.Mixfile do
   def project do
     [
       app: :ex_feels,
-      version: "1.1.0",
+      version: "1.2.0",
       elixir: "~> 1.6",
       elixirc_paths: elixirc_paths(Mix.env),
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
@@ -42,7 +42,9 @@ defmodule ExFeels.Mixfile do
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
       {:hackney, "~> 1.8"},
-      {:timex, "~> 3.2"}
+      {:timex, "~> 3.2"},
+      {:scrivener_ecto, "~> 1.0"},
+      {:scrivener_html, "~> 1.7"}
     ]
   end
 
