@@ -91,4 +91,8 @@ defmodule ExFeels.Feel do
     })
     |> Repo.paginate(params)
   end
+
+  def count() do
+    Repo.aggregate(__MODULE__, :count, :id)
+  end
 end

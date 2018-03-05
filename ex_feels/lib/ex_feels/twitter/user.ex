@@ -59,4 +59,8 @@ defmodule ExFeels.Twitter.User do
   def get(user_id) do
     Repo.get_by(__MODULE__, user_id: user_id)
   end
+
+  def count() do
+    Repo.aggregate(__MODULE__, :count, :id)
+  end
 end
