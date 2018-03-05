@@ -18,7 +18,6 @@ defmodule ExFeels.Stat do
   end
 
   def count() do
-    __MODULE__
-    |> Repo.aggregate(:count, :time)
+    Repo.aggregate(__MODULE__, :count, :time)
   end
 end

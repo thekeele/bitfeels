@@ -93,7 +93,6 @@ defmodule ExFeels.Feel do
   end
 
   def count() do
-    __MODULE__
-    |> Repo.aggregate(:count, :id)
+    Repo.aggregate(__MODULE__, :count, :id)
   end
 end
