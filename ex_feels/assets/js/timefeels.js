@@ -24,38 +24,38 @@ function addAxes (svg, xAxis, yAxis, chartHeight) {
 }
 
 function drawPaths (svg, data, x, y) {
-  var upperInnerArea = d3.svg.area()
-    .interpolate('basis')
-    .x (function (d) { return x(d.time) || 1; })
-    .y0(function (d) { return y(d.mean); })
-    .y1(function (d) { return y(d.mean) + y(d.std); });
-
-  var medianLine = d3.svg.line()
+  //var upperArea = d3.svg.area()
+  //  .interpolate('basis')
+  //  .x (function (d) { return x(d.time) || 1; })
+  //  .y0(function (d) { return y(d.mean); })
+  //  .y1(function (d) { return y(d.mean) + y(d.std); });
+  console.log(data)
+  var meanLine = d3.svg.line()
     .interpolate('basis')
     .x(function (d) { return x(d.time); })
     .y(function (d) { return y(d.mean); });
 
-  var lowerInnerArea = d3.svg.area()
-    .interpolate('basis')
-    .x (function (d) { return x(d.time) || 1; })
-    .y0(function (d) { return y(d.mean); })
-    .y1(function (d) { return y(d.mean) - y(d.std); });
+  //var lowerArea = d3.svg.area()
+  //  .interpolate('basis')
+  //  .x (function (d) { return x(d.time) || 1; })
+  //  .y0(function (d) { return y(d.mean); })
+  //  .y1(function (d) { return y(d.mean) - y(d.std); });
 
   svg.datum(data);
 
   //svg.append('path')
   //  .attr('class', 'area upper inner')
-  //  .attr('d', upperInnerArea)
+  //  .attr('d', upperArea)
   //  .attr('clip-path', 'url(#rect-clip)');
 
   //svg.append('path')
   //  .attr('class', 'area lower inner')
-  //  .attr('d', lowerInnerArea)
+  //  .attr('d', lowerArea)
   //  .attr('clip-path', 'url(#rect-clip)');
 
   svg.append('path')
     .attr('class', 'median-line')
-    .attr('d', medianLine)
+    .attr('d', meanLine)
     .attr('clip-path', 'url(#rect-clip)');
 }
 
@@ -73,10 +73,7 @@ function makeChart (data) {
   var x = d3.time.scale().range([0, chartWidth])
             .domain(d3.extent(data, function (d) { return d.time; })),
       y = d3.scale.linear().range([chartHeight, 0])
-            .domain([
-                d3.min(data, function (d) { return d.mean; }),
-                d3.max(data, function (d) { return d.mean; })
-               ]);
+            .domain([-1, 1]);
 
   var xAxis = d3.svg.axis().scale(x).orient('bottom')
                 .innerTickSize(-chartHeight).outerTickSize(0).tickPadding(10),
@@ -95,7 +92,6 @@ function makeChart (data) {
     .append('rect')
       .attr('width', 0)
       .attr('height', chartHeight);
-
   addAxes(svg, xAxis, yAxis, chartHeight);
   drawPaths(svg, data, x, y);
   startTransitions(chartWidth, rectClip);
@@ -104,14 +100,15 @@ function makeChart (data) {
 var parseTime = d3.time.format('%a %b %d %H:%M:%S %Z %Y').parse;
 
 var data = fetch('/bitfeels/api/stats')
-  .then((resp) => resp.json())
-  //.then(function (d) {
-  //  return {
-  //    time: parseTime(String(d.time)),
-  //    mean: d.mean,
-  //    std:  d.std,
-  //    classifier: d.classifier
-  //  };
-  //});
+  .then(resp => Promise.resolve(resp))
+  .then(resp => resp.json())
+  .then(resp => resp.map(function (d) {
+    return {
+      time: parseTime(d.time),
+      mean: d.mean,
+      std:  d.std,
+      classifier: d.classifier
+    };
+  }));
 console.log(data);
 makeChart(data);
