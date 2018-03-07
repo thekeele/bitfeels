@@ -6,9 +6,6 @@ function addAxes (svg, xAxis, yAxis, chartHeight) {
     .attr('class', 'x axis')
     .attr('transform', 'translate(0,' + chartHeight/2 + ')')
     .call(xAxis)
-    .append('text')
-      .style('text-anchor', 'end')
-      .text('Time');
 
   axes.append('g')
     .attr('class', 'y axis')
@@ -17,41 +14,42 @@ function addAxes (svg, xAxis, yAxis, chartHeight) {
       .attr('transform', 'rotate(-90)')
       //.attr('transform', 'translate(0,' + chartHeight/2 + ')')
       .attr('y', 0)
-      .attr('dy', '-.71em')
+      .attr('dy', '-2em')
       .attr('dx', '-4em')
       .style('text-anchor', 'end')
       .text('Sentiment');
 }
 
 function drawPaths (svg, data, x, y) {
-  //var upperArea = d3.svg.area()
-  //  .interpolate('basis')
-  //  .x (function (d) { return x(d.time) || 1; })
-  //  .y0(function (d) { return y(d.mean); })
-  //  .y1(function (d) { return y(d.mean) + y(d.std); });
-  console.log(data)
-  var meanLine = d3.svg.line()
+
+  var upperArea = d3.svg.area()
     .interpolate('basis')
+    .x (function (d) { return x(d.time) || 1; })
+    .y0(function (d) { return y(d.mean) + y(d.std); })
+    .y1(function (d) { return y(d.mean); });
+  
+  var meanLine = d3.svg.line()
+    .interpolate('linear')
     .x(function (d) { return x(parseTime(d.time)); })
     .y(function (d) { return y(d.mean); });
 
-  //var lowerArea = d3.svg.area()
-  //  .interpolate('basis')
-  //  .x (function (d) { return x(d.time) || 1; })
-  //  .y0(function (d) { return y(d.mean); })
-  //  .y1(function (d) { return y(d.mean) - y(d.std); });
+  var lowerArea = d3.svg.area()
+    .interpolate('basis')
+    .x (function (d) { return x(parseTime(d.time)) || 1; })
+    .y0(function (d) { return y(d.mean); })
+    .y1(function (d) { return y(d.mean) - y(d.std); });
 
   svg.datum(data);
 
-  //svg.append('path')
-  //  .attr('class', 'area upper inner')
-  //  .attr('d', upperArea)
-  //  .attr('clip-path', 'url(#rect-clip)');
+  svg.append('path')
+    .attr('class', 'area upper inner')
+    .attr('d', upperArea)
+    .attr('clip-path', 'url(#rect-clip)');
 
-  //svg.append('path')
-  //  .attr('class', 'area lower inner')
-  //  .attr('d', lowerArea)
-  //  .attr('clip-path', 'url(#rect-clip)');
+  svg.append('path')
+    .attr('class', 'area lower inner')
+    .attr('d', lowerArea)
+    .attr('clip-path', 'url(#rect-clip)');
 
   svg.append('path')
     .attr('class', 'median-line')
@@ -64,7 +62,7 @@ function startTransitions (chartWidth, rectClip) {
 }
 
 function makeChart (data) {
-  console.log(data)
+
   var svgWidth  = 1024,
       svgHeight = 450,
       margin = { top: 20, right: 20, bottom: 40, left: 40 },
@@ -100,39 +98,9 @@ function makeChart (data) {
 
 var parseTime = d3.time.format('%a %b %d %H:%M:%S %Z %Y').parse;
 
-// var data = fetch('/bitfeels/api/stats')
-//   .then(resp => resp.json())
-//   .then(resp => resp.map(function (d) {
-//     return {
-//       time: parseTime(d.time),
-//       mean: d.mean,
-//       std:  d.std,
-//       classifier: d.classifier
-//     };
-//   }));
-
-// console.log(typeof(data));
-
-// Promise.all(data).then(function(values) {
-//   console.log(values);
-// });
-
+// Hit the bitfeels api for stats, log and make chart
 var url = "/bitfeels/api/stats"
-var data;
 var response = d3.json(url, function (json) {
   console.log(json);
-  data = json
-  makeChart(data);
+  makeChart(json);
 });
-console.log(data);
-// data = result.map(function (d) {
-//   return {
-//     time: parseTime(d.time),
-//     mean: d.mean,
-//     std: d.std,
-//     classifier: d.classifier
-//   };
-// });
-
-// console.log(data);
-

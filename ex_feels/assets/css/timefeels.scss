@@ -14,15 +14,15 @@
 }
 
 .area {
-  stroke-width: 1;
+  stroke-width: 11;
 }
 
-.area.outer {
+.area.upper {
   fill: rgba(230, 230, 255, 0.8);
   stroke: rgba(216, 216, 255, 0.8);
 }
 
-.area.inner {
+.area.lower {
   fill: rgba(127, 127, 255, 0.8);
   stroke: rgba(96, 96, 255, 0.8);
 }
@@ -30,5 +30,5 @@
 .median-line {
   fill: none;
   stroke: #000;
-  stroke-width: 3;
+  stroke-width: 4;
 }
