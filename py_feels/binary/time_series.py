@@ -14,7 +14,7 @@ env is "dev" or "prod"
 """
 
 # constant window width
-WINDOW = 48
+WINDOW = 24
 
 import pandas as pd
 from dateutil import parser
@@ -76,7 +76,11 @@ feeltimes['created_at'] = feeltimes.created_at.apply(
 
 # compute time bins, store string labels in data frame
 fltbins, strbins = time_bins(feeltimes.created_at.values, WINDOW)
-times = pd.DataFrame({'time':strbins, 'window':list(range(len(strbins)))})
+times = pd.DataFrame({
+    'unix':fltbins,
+    'time':strbins,
+    'window':list(range(len(strbins)))
+})
 
 # prep the feels for binning
 feeltimes = feeltimes[feeltimes['sentiment'] != "0"].reset_index(drop=True)
@@ -96,11 +100,12 @@ group_stats = feeltimes.groupby(['classifier', 'assignment'])['sentiment'].apply
 # with zeroes
 stats = pd.DataFrame(columns=['time', 'classifier', 'mean', 'std'])
 for clf in feeltimes.classifier.unique():
-    tmp = pd.DataFrame(times['time'])
+    tmp = pd.DataFrame(times[['unix', 'time']])
     tmp[['mean', 'std']] = group_stats[clf].apply(pd.Series)
     tmp['classifier'] = clf
     tmp.fillna(0., inplace=True)
     stats = stats.append(tmp)
 
-# write predictions to 'feels' table in database
+# write predictions to 'feels' table in database, first sorting by time
+stats = stats.sort_values('unix', axis=0).drop('unix', axis=1)
 stats.to_sql('stats', engine, if_exists='replace', index=False)
