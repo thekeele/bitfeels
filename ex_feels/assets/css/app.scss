@@ -1,16 +1,16 @@
 @import "bulma";
 @import "timefeels";
 
+html {
+  background-color: whitesmoke;
+}
+
 .center {
   text-align: center;
 }
 
-.tweet {
-  font-size: 2.5em;
-}
-
 .emoji {
-  font-size: 6em;
+  font-size: 3em;
 }
 
 img {
