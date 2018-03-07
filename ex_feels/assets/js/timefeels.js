@@ -32,7 +32,7 @@ function drawPaths (svg, data, x, y) {
   console.log(data)
   var meanLine = d3.svg.line()
     .interpolate('basis')
-    .x(function (d) { return x(d.time); })
+    .x(function (d) { return x(parseTime(d.time)); })
     .y(function (d) { return y(d.mean); });
 
   //var lowerArea = d3.svg.area()
@@ -64,6 +64,7 @@ function startTransitions (chartWidth, rectClip) {
 }
 
 function makeChart (data) {
+  console.log(data)
   var svgWidth  = 1024,
       svgHeight = 450,
       margin = { top: 20, right: 20, bottom: 40, left: 40 },
@@ -71,7 +72,7 @@ function makeChart (data) {
       chartHeight = svgHeight - margin.top  - margin.bottom;
 
   var x = d3.time.scale().range([0, chartWidth])
-            .domain(d3.extent(data, function (d) { return d.time; })),
+            .domain(d3.extent(data, function (d) { return parseTime(d.time); })),
       y = d3.scale.linear().range([chartHeight, 0])
             .domain([-1, 1]);
 
@@ -99,16 +100,39 @@ function makeChart (data) {
 
 var parseTime = d3.time.format('%a %b %d %H:%M:%S %Z %Y').parse;
 
-var data = fetch('/bitfeels/api/stats')
-  .then(resp => Promise.resolve(resp))
-  .then(resp => resp.json())
-  .then(resp => resp.map(function (d) {
-    return {
-      time: parseTime(d.time),
-      mean: d.mean,
-      std:  d.std,
-      classifier: d.classifier
-    };
-  }));
+// var data = fetch('/bitfeels/api/stats')
+//   .then(resp => resp.json())
+//   .then(resp => resp.map(function (d) {
+//     return {
+//       time: parseTime(d.time),
+//       mean: d.mean,
+//       std:  d.std,
+//       classifier: d.classifier
+//     };
+//   }));
+
+// console.log(typeof(data));
+
+// Promise.all(data).then(function(values) {
+//   console.log(values);
+// });
+
+var url = "/bitfeels/api/stats"
+var data;
+var response = d3.json(url, function (json) {
+  console.log(json);
+  data = json
+  makeChart(data);
+});
 console.log(data);
-makeChart(data);
+// data = result.map(function (d) {
+//   return {
+//     time: parseTime(d.time),
+//     mean: d.mean,
+//     std: d.std,
+//     classifier: d.classifier
+//   };
+// });
+
+// console.log(data);
+
