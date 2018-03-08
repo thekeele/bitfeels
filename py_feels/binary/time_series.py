@@ -49,9 +49,8 @@ def time_bins(times, window):
     t_max  = max(times)
     n_bins = ceil((t_max - t_min) / 3600 / float(window))
     fltbins = linspace(t_min, t_max, num=n_bins)
-    strbins = [datetime.fromtimestamp(t) for t in fltbins]
-    strbins = [t.strftime("%a %b %d %H:%M:%S +0000 %Y") for t in strbins]
-    return fltbins, strbins
+
+    return fltbins
 
 def mean_and_std(times):
     return mean(times), std(times)
@@ -75,11 +74,10 @@ feeltimes['created_at'] = feeltimes.created_at.apply(
 )
 
 # compute time bins, store string labels in data frame
-fltbins, strbins = time_bins(feeltimes.created_at.values, WINDOW)
+fltbins = time_bins(feeltimes.created_at.values, WINDOW)
 times = pd.DataFrame({
-    'unix':fltbins,
-    'time':strbins,
-    'window':list(range(len(strbins)))
+    'time':fltbins,
+    'window':list(range(len(fltbins)))
 })
 
 # prep the feels for binning
@@ -100,12 +98,11 @@ group_stats = feeltimes.groupby(['classifier', 'assignment'])['sentiment'].apply
 # with zeroes
 stats = pd.DataFrame(columns=['time', 'classifier', 'mean', 'std'])
 for clf in feeltimes.classifier.unique():
-    tmp = pd.DataFrame(times[['unix', 'time']])
+    tmp = pd.DataFrame(times['time'])
     tmp[['mean', 'std']] = group_stats[clf].apply(pd.Series)
     tmp['classifier'] = clf
     tmp.fillna(0., inplace=True)
     stats = stats.append(tmp)
 
-# write predictions to 'feels' table in database, first sorting by time
-stats = stats.sort_values('unix', axis=0).drop('unix', axis=1)
+# write predictions to 'feels' table in database
 stats.to_sql('stats', engine, if_exists='replace', index=False)

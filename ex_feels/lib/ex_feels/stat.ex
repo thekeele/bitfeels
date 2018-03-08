@@ -10,7 +10,7 @@ defmodule ExFeels.Stat do
     field :classifier, :string
     field :mean, :float
     field :std, :float
-    field :time, :string
+    field :time, :float
   end
 
   def all() do
