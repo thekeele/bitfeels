@@ -129,8 +129,6 @@ function makeChart (data, name) {
   startTransitions(chartWidth, rectClip);
 }
 
-var parseTime = d3.time.format('%a %b %d %H:%M:%S %Z %Y').parse;
-
 // convert timestamp to javascript native Date
 function conversion (d) {
   return {
@@ -151,5 +149,4 @@ var response = d3.json(url, function (json) {
     console.log(data);
     makeChart(data.map(conversion), classifier);
   });
-  //makeChart(json.map(conversion));
 });
