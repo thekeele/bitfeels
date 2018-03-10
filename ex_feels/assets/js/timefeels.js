@@ -34,27 +34,6 @@ function drawPaths (svg, data, x, y) {
     .x(function (d) { return x(d.time); })
     .y(function (d) { return y(d.mean); });
 
-  // use a linear scale to define boundaries of gradients
-  var colors = d3.scale.linear()
-    .domain([-1, 0, 1])
-    .range(["#ff3860", "#a4a4a4", "#23d160"]);
-
-  // "0%" and "100%" positions for gradient are determined by the
-  // min and max sampled y-values. determine start and ending
-  // colors based on these points for consistency across plots
-  var dmax = d3.min([1,  d3.max(data, d => d.mean + d.std**2)]);
-  var dmin = d3.max([-1, d3.min(data, d => d.mean - d.std**2)]);
-
-  var gradientMin = colors(dmin);
-  var gradientMax = colors(dmax);
-
-  console.log([gradientMin, gradientMax]);
-  console.log([dmin, dmax]);
-  // attempt to get gray closer to the middle. basis spline
-  // interpolation does not actually pass through the data,
-  // so min and max values don't represent the area itself
-  var p0 = String(100*(dmax - 0)/(dmax - dmin))+"%";
-
   // append the gradient 
   var uGradient = svg.append("defs")
     .append("linearGradient")
@@ -74,7 +53,7 @@ function drawPaths (svg, data, x, y) {
   uGradient.append("stop")
     .attr("offset", 0.25)
     .attr("stop-color", "#a4a4a4")
-    .attr("stop-opacity", 0.75);
+    .attr("stop-opacity", 0.85);
 
   uGradient.append("stop")
     .attr("offset", 0.5)
@@ -148,15 +127,6 @@ function makeChart (data, name) {
   drawPaths(svg, data, x, y);
   startTransitions(chartWidth, rectClip);
 }
-
-// convert timestamp to javascript native Date
-function conversion (d) {
-  return {
-    time: new Date(d.time/1000), // conversion to milliseconds
-    mean: d.mean,
-    std: d.std,
-  };
-};
 
 // Hit the bitfeels api for stats, log and make chart
 const url = "/bitfeels/api/stats"
