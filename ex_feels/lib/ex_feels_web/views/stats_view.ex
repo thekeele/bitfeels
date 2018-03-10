@@ -3,13 +3,21 @@ defmodule ExFeelsWeb.StatsView do
 
   def render("index.json", %{stats: stats}) do
     stats
-    |> Enum.map(&stats_json/1)
-    |> Enum.sort(& &1.time <= &2.time)
+    |> Enum.group_by(& &1.classifier)
+    |> Enum.reduce([], fn classifier, classifiers ->
+      [classifier_json(classifier) | classifiers]
+    end)
   end
 
-  defp stats_json(stat) do
+  defp classifier_json({classifier, data}) do
     %{
-      classifier: stat.classifier,
+      name: classifier,
+      data: Enum.map(data, &stat_json/1)
+    }
+  end
+
+  defp stat_json(stat) do
+    %{
       mean: stat.mean,
       std: stat.std,
       time: stat.time

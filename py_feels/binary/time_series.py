@@ -38,7 +38,7 @@ def ts_to_td(created_at):
         and returns a timestamp
     """
     created_at = parser.parse(created_at)
-    return created_at.timestamp()
+    return int(created_at.strftime("%s"))
 
 def time_bins(times, window):
     """
@@ -50,7 +50,7 @@ def time_bins(times, window):
     n_bins = ceil((t_max - t_min) / 3600 / float(window))
     fltbins = linspace(t_min, t_max, num=n_bins)
 
-    return fltbins
+    return [int(f) for f in fltbins]
 
 def mean_and_std(times):
     return mean(times), std(times)

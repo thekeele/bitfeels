@@ -18,8 +18,7 @@ function addAxes (svg, xAxis, yAxis, chartHeight, name) {
       .attr('transform', 'translate(-10,' + chartHeight/2 + ')rotate(-90)')
       .attr('y', 0)
       .style('text-anchor', 'middle')
-      .text(name)
-        .style('font-weight', 'bold');
+      .text('Sentiment')
 }
 
 function drawPaths (svg, data, x, y) {
@@ -35,54 +34,63 @@ function drawPaths (svg, data, x, y) {
     .x(function (d) { return x(d.time); })
     .y(function (d) { return y(d.mean); });
 
+  // use a linear scale to define boundaries of gradients
+  var colors = d3.scale.linear()
+    .domain([-1, 0, 1])
+    .range(["#ff3860", "#a4a4a4", "#23d160"]);
+
+  // "0%" and "100%" positions for gradient are determined by the
+  // min and max sampled y-values. determine start and ending
+  // colors based on these points for consistency across plots
+  var dmax = d3.min([1,  d3.max(data, d => d.mean + d.std**2)]);
+  var dmin = d3.max([-1, d3.min(data, d => d.mean - d.std**2)]);
+
+  var gradientMin = colors(dmin);
+  var gradientMax = colors(dmax);
+
+  console.log([gradientMin, gradientMax]);
+  console.log([dmin, dmax]);
+  // attempt to get gray closer to the middle. basis spline
+  // interpolation does not actually pass through the data,
+  // so min and max values don't represent the area itself
+  var p0 = String(100*(dmax - 0)/(dmax - dmin))+"%";
+
+  // append the gradient 
   var uGradient = svg.append("defs")
     .append("linearGradient")
+    .attr("gradientUnits", "objectBoundingBox")
     .attr("id", "upperGradient")
     .attr("x1", "0%")
-    .attr("x2", "100%")
+    .attr("x2", "0%")
     .attr("y1", 1)
     .attr("y2", -1)
     .attr("spreadMethod", "pad");
 
   uGradient.append("stop")
-    .attr("offset", "0%")
+    .attr("offset", 0)
     .attr("stop-color", "#ff3860")
-    .attr("stop-opacity", 0.9);
+    .attr("stop-opacity", 0.95);
 
   uGradient.append("stop")
-    .attr("offset", "50%")
+    .attr("offset", 0.25)
+    .attr("stop-color", "#a4a4a4")
+    .attr("stop-opacity", 0.75);
+
+  uGradient.append("stop")
+    .attr("offset", 0.5)
     .attr("stop-color", "#23d160")
-    .attr("stop-opacity", 0.9);
-
-  var lGradient = svg.append("defs")
-    .append("linearGradient")
-    .attr("id", "lowerGradient")
-    .attr("x1", "50%")
-    .attr("y1", "50%")
-    .attr("x2", "50%")
-    .attr("y2", "0%")
-    .attr("spreadMethod", "pad");
-
-  lGradient.append("stop")
-    .attr("offset", "0%")
-    .attr("stop-color", "#23d160")
-    .attr("stop-opacity", 0.7);
-
-  lGradient.append("stop")
-    .attr("offset", "100%")
-    .attr("stop-color", "#ff3860")
-    .attr("stop-opacity", 0.7);
+    .attr("stop-opacity", 0.95);  
 
   svg.datum(data);
 
-  svg.append('path')
+  svg.append('path') // add variance cloud
     .attr('class', 'area inner')
     .attr('d', Area)
-    .attr('fill', "url(#upperGradient)")
+    .attr('fill', 'url(#upperGradient)')
     .attr('clip-path', 'url(#rect-clip)');
 
-  svg.append('path')
-    .attr('class', 'median-line')
+  svg.append('path') // add mean trend
+    .attr('class', 'mean-line')
     .attr('d', meanLine)
     .attr('clip-path', 'url(#rect-clip)');
 }
@@ -93,8 +101,10 @@ function startTransitions (chartWidth, rectClip) {
 
 function makeChart (data, name) {
 
-  var svgWidth  = 1024,
-      svgHeight = 450,
+  data.forEach(function(d){ d.time = new Date(1000*d.time) });
+
+  var svgWidth  = 1200,
+      svgHeight = 500,
       margin = { top: 30, right: 20, bottom: 50, left: 50 },
       chartWidth  = svgWidth  - margin.left - margin.right,
       chartHeight = svgHeight - margin.top  - margin.bottom;
@@ -121,9 +131,19 @@ function makeChart (data, name) {
   // clipping to start chart hidden and slide it in later
   var rectClip = svg.append('clipPath')
     .attr('id', 'rect-clip')
+    .attr('fill', 'url(#upperGradient)')
     .append('rect')
       .attr('width', 0)
       .attr('height', chartHeight);
+  
+  svg.append("text") // add chart title
+      .attr("x", (chartWidth / 2))             
+      .attr("y", 0 - (margin.top / 20))
+      .attr("text-anchor", "middle")  
+      .style("font-size", "20px")
+      .style('font-weight', 'bold')
+      .text(name);
+
   addAxes(svg, xAxis, yAxis, chartHeight, name);
   drawPaths(svg, data, x, y);
   startTransitions(chartWidth, rectClip);
@@ -132,21 +152,16 @@ function makeChart (data, name) {
 // convert timestamp to javascript native Date
 function conversion (d) {
   return {
-    time: new Date(d.time*1000), // conversion to milliseconds
+    time: new Date(d.time/1000), // conversion to milliseconds
     mean: d.mean,
     std: d.std,
-    classifier: d.classifier
   };
 };
 
 // Hit the bitfeels api for stats, log and make chart
-var url = "/bitfeels/api/stats"
-var response = d3.json(url, function (json) {
-  console.log(json);
-  let classifiers = new Set(json.map(d => d.classifier));
+const url = "/bitfeels/api/stats"
+var response = d3.json(url, function (classifiers) {
   classifiers.forEach(function (classifier) {
-    var data = json.filter(d => d.classifier == classifier);
-    console.log(data);
-    makeChart(data.map(conversion), classifier);
+    makeChart(classifier.data, classifier.name);
   });
 });
