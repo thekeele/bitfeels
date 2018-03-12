@@ -80,8 +80,6 @@ function startTransitions (chartWidth, rectClip) {
 
 function makeChart (data, name) {
 
-  data.forEach(function(d){ d.time = new Date(1000*d.time) });
-
   var svgWidth  = 1200,
       svgHeight = 500,
       margin = { top: 30, right: 20, bottom: 50, left: 50 },
@@ -130,7 +128,7 @@ function makeChart (data, name) {
 
 // Hit the bitfeels api for stats, log and make chart
 const url = "/bitfeels/api/stats"
-var response = d3.json(url, function (classifiers) {
+d3.json(url, function (classifiers) {
   classifiers.forEach(function (classifier) {
     makeChart(classifier.data, classifier.name);
   });

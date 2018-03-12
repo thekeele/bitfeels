@@ -50,7 +50,7 @@ def time_bins(times, window):
     n_bins = ceil((t_max - t_min) / 3600 / float(window))
     fltbins = linspace(t_min, t_max, num=n_bins)
 
-    return [int(f) for f in fltbins]
+    return fltbins
 
 def mean_and_std(times):
     return mean(times), std(times)
@@ -98,7 +98,7 @@ group_stats = feeltimes.groupby(['classifier', 'assignment'])['sentiment'].apply
 # with zeroes
 stats = pd.DataFrame(columns=['time', 'classifier', 'mean', 'std'])
 for clf in feeltimes.classifier.unique():
-    tmp = pd.DataFrame(times['time'])
+    tmp = pd.DataFrame(times['time'].apply(lambda x: 1000*int(x))) # conv to ms
     tmp[['mean', 'std']] = group_stats[clf].apply(pd.Series)
     tmp['classifier'] = clf
     tmp.fillna(0., inplace=True)
