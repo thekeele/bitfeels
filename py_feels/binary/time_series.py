@@ -14,7 +14,7 @@ env is "dev" or "prod"
 """
 
 # constant window width
-WINDOW = 48
+WINDOW = 24
 
 import pandas as pd
 from dateutil import parser
@@ -38,7 +38,7 @@ def ts_to_td(created_at):
         and returns a timestamp
     """
     created_at = parser.parse(created_at)
-    return created_at.timestamp()
+    return int(created_at.strftime("%s"))
 
 def time_bins(times, window):
     """
@@ -49,9 +49,8 @@ def time_bins(times, window):
     t_max  = max(times)
     n_bins = ceil((t_max - t_min) / 3600 / float(window))
     fltbins = linspace(t_min, t_max, num=n_bins)
-    strbins = [datetime.fromtimestamp(t) for t in fltbins]
-    strbins = [t.strftime("%a %b %d %H:%M:%S +0000 %Y") for t in strbins]
-    return fltbins, strbins
+
+    return fltbins
 
 def mean_and_std(times):
     return mean(times), std(times)
@@ -75,8 +74,11 @@ feeltimes['created_at'] = feeltimes.created_at.apply(
 )
 
 # compute time bins, store string labels in data frame
-fltbins, strbins = time_bins(feeltimes.created_at.values, WINDOW)
-times = pd.DataFrame({'time':strbins, 'window':list(range(len(strbins)))})
+fltbins = time_bins(feeltimes.created_at.values, WINDOW)
+times = pd.DataFrame({
+    'time':fltbins,
+    'window':list(range(len(fltbins)))
+})
 
 # prep the feels for binning
 feeltimes = feeltimes[feeltimes['sentiment'] != "0"].reset_index(drop=True)
@@ -96,7 +98,7 @@ group_stats = feeltimes.groupby(['classifier', 'assignment'])['sentiment'].apply
 # with zeroes
 stats = pd.DataFrame(columns=['time', 'classifier', 'mean', 'std'])
 for clf in feeltimes.classifier.unique():
-    tmp = pd.DataFrame(times['time'])
+    tmp = pd.DataFrame(times['time'].apply(lambda x: 1000*int(x))) # conv to ms
     tmp[['mean', 'std']] = group_stats[clf].apply(pd.Series)
     tmp['classifier'] = clf
     tmp.fillna(0., inplace=True)

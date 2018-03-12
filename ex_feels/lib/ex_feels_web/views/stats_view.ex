@@ -2,12 +2,22 @@ defmodule ExFeelsWeb.StatsView do
   use ExFeelsWeb, :view
 
   def render("index.json", %{stats: stats}) do
-    Enum.map(stats, &stats_json/1)
+    stats
+    |> Enum.group_by(& &1.classifier)
+    |> Enum.reduce([], fn classifier, classifiers ->
+      [classifier_json(classifier) | classifiers]
+    end)
   end
 
-  defp stats_json(stat) do
+  defp classifier_json({classifier, data}) do
     %{
-      classifier: stat.classifier,
+      name: classifier,
+      data: Enum.map(data, &stat_json/1)
+    }
+  end
+
+  defp stat_json(stat) do
+    %{
       mean: stat.mean,
       std: stat.std,
       time: stat.time
