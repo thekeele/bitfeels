@@ -2,6 +2,11 @@
 """
 Created on Sat Jan 13 15:51:35 2018
 
+reclassifies all tweets in the bit_feels database,
+for use only when classifiers have been added or changed.
+
+takes one argument: env = "dev" or "prod"
+
 @author: blenderherad
 """
 
@@ -29,7 +34,7 @@ with open('./model/model_dict.pckl', 'rb') as f:
 
 # connect to  SQL database, query for last item in 'tweets' table
 engine = create_engine('postgresql+psycopg2://wojak:@localhost/' + env)
-query  = "SELECT tweet_id, text FROM tweets"
+query  = "SELECT id, text FROM tweets"
 tweets = pd.read_sql(query, engine)    
 
 # if this is the first model to 
@@ -50,7 +55,7 @@ for name in fitted_models:
     feels = pd.DataFrame()
     feels['sentiment']   = list(map(str, sentiments))
     feels['classifier']  = name
-    feels['tweet_id']    = tweets.tweet_id.values
+    feels['tweet_id']    = tweets.id.values
     
     # store prediction time
     time_now = str(datetime.datetime.now())

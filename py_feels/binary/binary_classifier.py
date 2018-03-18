@@ -2,10 +2,12 @@
 """
 Created on Thu Dec  7 15:45:21 2017
 
-Binary sentiment classifier for BitFeels. Loads model fit by
-binary_classifier_training.py and produces predictions. Currently
-just runs on amazon training data, but will eventually pull from
-mongo DB of tweets and return sentiments
+Binary sentiment classifier for BitFeels. Loads models fit by
+binary_classifier_training.py and produces predictions. Model
+pickle file paths are stored in ./model/model_dict.pckl by the
+training script 
+
+takes one argument: env = "dev" or "prod"
 
 @author: rcehemann
 """

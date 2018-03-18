@@ -68,4 +68,8 @@ defmodule ExFeels.Twitter.Tweet do
     |> preload(:user)
     |> Repo.all()
   end
+
+  def count() do
+    Repo.aggregate(__MODULE__, :count, :id)
+  end
 end

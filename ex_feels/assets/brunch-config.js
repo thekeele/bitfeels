@@ -62,6 +62,9 @@ exports.config = {
   },
 
   npm: {
-    enabled: true
+    enabled: true,
+    globals: {
+      d3: "d3"
+    }
   }
 };

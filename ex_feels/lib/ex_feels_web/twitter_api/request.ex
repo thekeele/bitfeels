@@ -1,13 +1,14 @@
-defmodule ExFeelsWeb.TwitterApi.HTTP do
+defmodule ExFeelsWeb.TwitterApi.Request do
 
-  alias ExFeelsWeb.TwitterApi.Crypto
+  alias ExFeelsWeb.TwitterApi.Auth
 
   @base_url "https://api.twitter.com/1.1"
 
-  def request(method, endpoint, params \\ %{}) do
+  def get(endpoint, params \\ %{}) do
+    method = "GET"
     url = @base_url <> endpoint
 
-    headers = [{"Authorization", Crypto.oauth_header(method, url, params)}]
+    headers = [{"Authorization", Auth.oauth_header(method, url, params)}]
 
     url = maybe_query_params(url, params)
 

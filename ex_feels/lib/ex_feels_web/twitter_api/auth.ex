@@ -1,4 +1,4 @@
-defmodule ExFeelsWeb.TwitterApi.Crypto do
+defmodule ExFeelsWeb.TwitterApi.Auth do
   # https://developer.twitter.com/en/docs/basics/authentication/guides/authorizing-a-request
 
   @consumer_key Application.get_env(:ex_feels, :twitter)[:consumer_key]
