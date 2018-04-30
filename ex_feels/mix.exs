@@ -41,7 +41,7 @@ defmodule ExFeels.Mixfile do
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
-      {:hackney, "~> 1.8"},
+      {:httpoison, "~> 1.0"},
       {:jsx, "~> 2.9"},
       {:timex, "~> 3.2"},
       {:scrivener_ecto, "~> 1.0"},
