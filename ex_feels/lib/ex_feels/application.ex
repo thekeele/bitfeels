@@ -9,7 +9,7 @@ defmodule ExFeels.Application do
       supervisor(ExFeels.Repo, []),
       supervisor(ExFeelsWeb.Endpoint, []),
       worker(ExFeels.Feel.Fetcher, []),
-      worker(ExFeels.Feel.Streamer, [])
+      worker(Twitter.Stream, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

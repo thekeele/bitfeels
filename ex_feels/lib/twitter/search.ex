@@ -1,26 +1,7 @@
-defmodule Twitter do
+defmodule Twitter.Search do
   alias Twitter.OAuth, as: Auth
 
   @rest_api "https://api.twitter.com/1.1"
-  @stream_api "https://stream.twitter.com/1.1"
-
-  def account_settings() do
-    url = @rest_api <> "/account/settings.json"
-    headers = [{"Authorization", Auth.oauth_header(:get, url)}]
-
-    case :hackney.get(url, headers, "", [:with_body]) do
-      {:ok, 200, _headers, resp_body} ->
-        resp_body
-        |> Poison.decode!()
-        |> Map.take(["language", "screen_name", "time_zone"])
-
-      {:ok, status, _headers, body} when status > 200 ->
-        {:error, Poison.decode!(body)}
-
-      error ->
-        {:error, "#{inspect error}"}
-    end
-  end
 
   def search(params) when is_map(params) do
     url = @rest_api <> "/search/tweets.json"
@@ -52,17 +33,6 @@ defmodule Twitter do
         IO.inspect error, label: "twitter search error"
         []
     end
-  end
-
-  def stream_statuses(to: stream_server) do
-    url = @stream_api <> "/statuses/filter.json"
-    params = %{"track" => "twitter"}
-    headers = ["Authorization": Auth.oauth_header(:get, url, params)]
-    opts = [{:async, :once}, {:stream_to, stream_server}]
-
-    url
-    |> append_query_params(params)
-    |> :hackney.get(headers, "", opts)
   end
 
   def parse_to_tweets(statuses) do

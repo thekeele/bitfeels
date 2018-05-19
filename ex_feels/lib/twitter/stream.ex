@@ -1,29 +1,43 @@
-defmodule ExFeels.Feel.Streamer do
+defmodule Twitter.Stream do
   use GenServer
+
+  alias Twitter.OAuth, as: Auth
+
+  @stream_api "https://stream.twitter.com/1.1"
 
   ## Client
 
   def start_link(),
     do: GenServer.start_link(__MODULE__, %{tweets: []}, name: __MODULE__)
 
-  def start_streaming(opts \\ [chunk_rate: 5_000]),
+  def start_streaming(opts),
     do: GenServer.call(__MODULE__, {:start_streaming, opts})
 
   def stop_streaming(),
     do: GenServer.call(__MODULE__, :stop_streaming)
 
-  def get_stream(),
-    do: GenServer.call(__MODULE__, :get_stream)
+  def get_tweets(),
+    do: GenServer.call(__MODULE__, :get_tweets)
 
   ## Server
 
   def init(stream_state),
     do: {:ok, stream_state}
 
-  def handle_call({:start_streaming, opts}, _from, stream_state) do
-    {:ok, ref} = Twitter.stream_statuses(to: __MODULE__)
+  def handle_call({:start_streaming, stream_opts}, _from, stream_state) do
+    url = @stream_api <> "/statuses/filter.json"
+    params = %{"track" => "twitter"}
+    headers = ["Authorization": Auth.oauth_header(:get, url, params)]
 
-    {:reply, :ok, stream_state |> Map.put(:ref, ref) |> Map.put(:opts, opts)}
+    {:ok, ref} =
+      :hackney.get(
+        "#{url}?#{URI.encode_query(params)}",
+        headers,
+        "",
+        [{:async, :once}, {:stream_to, __MODULE__}]
+      )
+
+    {:reply, :ok, stream_state |> Map.put(:ref, ref) |> Map.put(:opts, stream_opts)}
   end
 
   def handle_call(:stop_streaming, _from, stream_state) do
@@ -33,8 +47,8 @@ defmodule ExFeels.Feel.Streamer do
     {:reply, :ok, stream_state |> Map.delete(:ref) |> Map.delete(:decoder)}
   end
 
-  def handle_call(:get_stream, _from, stream_state),
-    do: {:reply, stream_state, stream_state}
+  def handle_call(:get_tweets, _from, stream_state),
+    do: {:reply, stream_state.tweets, stream_state}
 
   def handle_info({:hackney_response, ref, {:status, 200, "OK"}}, stream_state) do
     :hackney.stream_next(ref)
@@ -90,7 +104,7 @@ defmodule ExFeels.Feel.Streamer do
 
   defp put_decoded_stream_state(json, stream_state) do
     tweet = Enum.into(json, %{})
-    tweets = [tweet["text"] | stream_state.tweets]
+    tweets = [tweet | stream_state.tweets]
 
     Process.sleep(stream_state.opts[:chunk_rate])
 
