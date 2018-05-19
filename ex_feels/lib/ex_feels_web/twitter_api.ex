@@ -1,8 +1,10 @@
 defmodule ExFeelsWeb.TwitterApi do
   @moduledoc false
 
-  alias ExFeelsWeb.TwitterApi.{Request, Response}
+  alias ExFeelsWeb.TwitterApi.{Auth, Request, Response}
   alias ExFeels.Twitter.Tweet
+
+  @stream_api "https://stream.twitter.com/1.1"
 
   def account_settings() do
     case Request.get("/account/settings.json") do
@@ -25,4 +27,17 @@ defmodule ExFeelsWeb.TwitterApi do
       [] -> :empty
     end
   end
+
+  def stream_statuses(to: stream_server) do
+    url = @stream_api <> "/statuses/filter.json"
+    params = %{"track" => "twitter"}
+    headers = ["Authorization": Auth.oauth_header("GET", url, params)]
+    opts = [{:async, :once}, {:stream_to, stream_server}]
+
+    url
+    |> append_query_params(params)
+    |> :hackney.get(headers, "", opts)
+  end
+
+  defp append_query_params(url, params), do: url <> "?#{URI.encode_query(params)}"
 end
