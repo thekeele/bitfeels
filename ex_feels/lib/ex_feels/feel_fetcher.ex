@@ -1,4 +1,4 @@
-defmodule ExFeels.Feel.Fetcher do
+defmodule ExFeels.FeelFetcher do
   use GenServer
   use Timex
 

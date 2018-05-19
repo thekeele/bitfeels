@@ -8,7 +8,7 @@ defmodule ExFeels.Application do
     children = [
       supervisor(ExFeels.Repo, []),
       supervisor(ExFeelsWeb.Endpoint, []),
-      worker(ExFeels.Feel.Fetcher, []),
+      worker(ExFeels.FeelFetcher, []),
       worker(Twitter.Stream, [])
     ]
 
