@@ -1,6 +1,4 @@
 defmodule ExFeels.Stat do
-  @moduledoc false
-
   use Ecto.Schema
 
   alias ExFeels.Repo
@@ -13,11 +11,7 @@ defmodule ExFeels.Stat do
     field :time, :integer
   end
 
-  def all() do
-    Repo.all(__MODULE__)
-  end
+  def all(), do: Repo.all(__MODULE__)
 
-  def count() do
-    Repo.aggregate(__MODULE__, :count, :time)
-  end
+  def count(), do: Repo.aggregate(__MODULE__, :count, :time)
 end

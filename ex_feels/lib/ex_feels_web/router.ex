@@ -14,7 +14,7 @@ defmodule ExFeelsWeb.Router do
   end
 
   scope "/bitfeels", ExFeelsWeb do
-    pipe_through :browser # Use the default browser stack
+    pipe_through :browser
 
     get "/", FeelController, :feels
   end
@@ -24,9 +24,4 @@ defmodule ExFeelsWeb.Router do
 
     get "/stats", StatsController, :index
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/bitfeels/api", ExFeelsWeb do
-  #   pipe_through :api
-  # end
 end

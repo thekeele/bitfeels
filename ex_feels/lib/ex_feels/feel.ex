@@ -1,11 +1,9 @@
 defmodule ExFeels.Feel do
-  @moduledoc false
-
   use Ecto.Schema
 
-  import Ecto.Query
-
   require Logger
+
+  import Ecto.Query
 
   alias ExFeels.{Twitter.Tweet, Repo}
 
@@ -22,51 +20,30 @@ defmodule ExFeels.Feel do
   end
 
   def generate_feels(py_feel) do
-    task = Task.async(fn -> run_script(py_feel) end)
+    task = Task.async(fn -> run_py_feel(py_feel) end)
 
     Task.await(task, 10_000)
   end
 
-  defp run_script(py_feel) when py_feel in @py_feels do
+  defp run_py_feel(py_feel) when py_feel in @py_feels do
     py_feel = Atom.to_string(py_feel)
 
-    Logger.info fn ->
-      """
-        fired async task #{py_feel}
-      """
-      end
-
-    "python"
-    |> System.cmd(["#{py_feel}.py", "#{@env}"], cd: "../py_feels/binary")
-    |> case do
+    case System.cmd("python", ["#{py_feel}.py", "#{@env}"], cd: "../py_feels/binary") do
       {_, 0} ->
         Logger.info fn ->
         """
-          task #{py_feel} successful
+        #{py_feel} feel successful
         """
         end
 
-        :ok
-
-      _ ->
+      error ->
         Logger.info fn ->
         """
-          task #{py_feel} failed
+        #{py_feel} feel failed
+        error: #{inspect error}
         """
         end
-
-        :error
     end
-  end
-
-  defp run_script(py_feel) do
-    Logger.info fn ->
-    """
-      unknown #{py_feel} feel
-    """
-    end
-
-    :error
   end
 
   def get(id) do
@@ -92,7 +69,5 @@ defmodule ExFeels.Feel do
     |> Repo.paginate(params)
   end
 
-  def count() do
-    Repo.aggregate(__MODULE__, :count, :id)
-  end
+  def count(), do: Repo.aggregate(__MODULE__, :count, :id)
 end
