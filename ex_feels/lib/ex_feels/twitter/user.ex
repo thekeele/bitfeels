@@ -1,6 +1,4 @@
 defmodule ExFeels.Twitter.User do
-  @moduledoc false
-
   use Ecto.Schema
 
   import Ecto.Changeset
@@ -8,8 +6,7 @@ defmodule ExFeels.Twitter.User do
   alias ExFeels.{Twitter.Tweet, Repo}
 
   @fields [
-    :verified, :time_zone, :statuses_count, :screen_name, :user_id,
-    :followers_count, :favourites_count
+    :verified, :time_zone, :statuses_count, :screen_name, :user_id, :followers_count, :favourites_count
   ]
 
   schema "users" do
@@ -56,11 +53,7 @@ defmodule ExFeels.Twitter.User do
     end
   end
 
-  def get(user_id) do
-    Repo.get_by(__MODULE__, user_id: user_id)
-  end
+  def get(user_id), do: Repo.get_by(__MODULE__, user_id: user_id)
 
-  def count() do
-    Repo.aggregate(__MODULE__, :count, :id)
-  end
+  def count(), do: Repo.aggregate(__MODULE__, :count, :id)
 end

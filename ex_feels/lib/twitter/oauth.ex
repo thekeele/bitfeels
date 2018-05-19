@@ -1,13 +1,11 @@
-defmodule ExFeelsWeb.TwitterApi.Auth do
+defmodule Twitter.OAuth do
   # https://developer.twitter.com/en/docs/basics/authentication/guides/authorizing-a-request
 
-  @consumer_key Application.get_env(:ex_feels, :twitter)[:consumer_key]
-  @consumer_secret Application.get_env(:ex_feels, :twitter)[:consumer_secret]
-
-  @access_token Application.get_env(:ex_feels, :twitter)[:access_token]
-  @token_secret Application.get_env(:ex_feels, :twitter)[:token_secret]
-
-  def oauth_header(method, url, params) do
+  def oauth_header(method, url, params \\ %{})
+  def oauth_header(method, url, params) when is_atom(method),
+    do: oauth_header(Atom.to_string(method), url, params)
+  def oauth_header(method, url, params) when is_binary(method) do
+    method = String.upcase(method)
     nonce = nonce()
     ts = timestamp()
 
@@ -21,7 +19,6 @@ defmodule ExFeelsWeb.TwitterApi.Auth do
 
   defp signature_base_string({nonce, ts}, method, url, params) do
     base = method <> "&#{URI.encode_www_form(url)}&"
-
     params =
       %{
         "oauth_consumer_key" => consumer_key(),
@@ -48,40 +45,39 @@ defmodule ExFeelsWeb.TwitterApi.Auth do
   end
 
   defp signing_key() do
-    customer_secret = @consumer_secret
-    token_secret = @token_secret
+    customer_secret =
+      System.get_env("TWITTER_CONSUMER_SECRET") || raise ":not_found $TWITTER_CONSUMER_SECRET"
+    token_secret =
+      System.get_env("TWITTER_TOKEN_SECRET") || raise ":not_found $TWITTER_TOKEN_SECRET"
 
     customer_secret <> "&" <> token_secret
   end
 
   # oauth_consumer_key
   defp consumer_key(),
-    do: @consumer_key
+    do: System.get_env("TWITTER_CONSUMER_KEY") || raise ":not_found $TWITTER_CONSUMER_KEY"
 
   # oauth_token
   # https://developer.twitter.com/en/docs/basics/authentication/guides/access-tokens.html
   defp token(),
-    do: @access_token
+    do: System.get_env("TWITTER_ACCESS_TOKEN") || raise ":not_found $TWITTER_ACCESS_TOKEN"
 
   # oauth_signature_method
-  defp method(),
-    do: "HMAC-SHA1"
+  defp method(), do: "HMAC-SHA1"
 
   # oauth_timestamp
-  defp timestamp(),
-    do: DateTime.utc_now() |> DateTime.to_unix()
+  defp timestamp(), do: DateTime.utc_now() |> DateTime.to_unix()
 
   # oauth_nonce
   defp nonce(bytes \\ 32) do
-    string =
+    random_encoded_binary =
       bytes
       |> :crypto.strong_rand_bytes()
       |> Base.encode64(padding: false)
 
-    Regex.replace(~r/\+|\/|[0-9]/, string, "z")
+    Regex.replace(~r/\+|\/|[0-9]/, random_encoded_binary, "z")
   end
 
   # oauth_version
-  defp version(),
-    do: "1.0"
+  defp version(), do: "1.0"
 end

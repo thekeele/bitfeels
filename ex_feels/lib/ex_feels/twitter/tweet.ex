@@ -1,6 +1,4 @@
 defmodule ExFeels.Twitter.Tweet do
-  @moduledoc false
-
   use Ecto.Schema
 
   import Ecto.{Changeset, Query}
@@ -69,7 +67,5 @@ defmodule ExFeels.Twitter.Tweet do
     |> Repo.all()
   end
 
-  def count() do
-    Repo.aggregate(__MODULE__, :count, :id)
-  end
+  def count(), do: Repo.aggregate(__MODULE__, :count, :id)
 end
