@@ -14,7 +14,6 @@ env is "dev" or "prod"
 """
 
 # constant window width
-WINDOW = 24
 
 import pandas as pd
 from dateutil import parser
@@ -23,6 +22,11 @@ from datetime import datetime
 from sys import argv
 from math import ceil
 from sqlalchemy import create_engine
+import yaml
+
+with open('time_series.yaml') as f:
+    settings = yaml.load(f)
+    WINDOW = settings['WINDOW']
 
 # check environment, parse arguments
 if len(argv) < 2 or argv[1] == "dev":
