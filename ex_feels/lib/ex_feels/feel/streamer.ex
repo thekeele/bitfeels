@@ -1,7 +1,5 @@
-defmodule ExFeelsWeb.TwitterApi.Streamer do
+defmodule ExFeels.Feel.Streamer do
   use GenServer
-
-  alias ExFeelsWeb.TwitterApi
 
   ## Client
 
@@ -23,7 +21,7 @@ defmodule ExFeelsWeb.TwitterApi.Streamer do
     do: {:ok, stream_state}
 
   def handle_call({:start_streaming, opts}, _from, stream_state) do
-    {:ok, ref} = TwitterApi.stream_statuses(to: __MODULE__)
+    {:ok, ref} = Twitter.stream_statuses(to: __MODULE__)
 
     {:reply, :ok, stream_state |> Map.put(:ref, ref) |> Map.put(:opts, opts)}
   end
@@ -91,10 +89,10 @@ defmodule ExFeelsWeb.TwitterApi.Streamer do
     do: stream_state
 
   defp put_decoded_stream_state(json, stream_state) do
-    Process.sleep(stream_state.opts[:chunk_rate])
-
     tweet = Enum.into(json, %{})
     tweets = [tweet["text"] | stream_state.tweets]
+
+    Process.sleep(stream_state.opts[:chunk_rate])
 
     stream_state
     |> Map.put(:tweets, tweets)

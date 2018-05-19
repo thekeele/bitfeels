@@ -2,6 +2,7 @@ defmodule Twitter do
   alias Twitter.OAuth, as: Auth
 
   @rest_api "https://api.twitter.com/1.1"
+  @stream_api "https://stream.twitter.com/1.1"
 
   def account_settings() do
     url = @rest_api <> "/account/settings.json"
@@ -51,6 +52,17 @@ defmodule Twitter do
         IO.inspect error, label: "twitter search error"
         []
     end
+  end
+
+  def stream_statuses(to: stream_server) do
+    url = @stream_api <> "/statuses/filter.json"
+    params = %{"track" => "twitter"}
+    headers = ["Authorization": Auth.oauth_header(:get, url, params)]
+    opts = [{:async, :once}, {:stream_to, stream_server}]
+
+    url
+    |> append_query_params(params)
+    |> :hackney.get(headers, "", opts)
   end
 
   def parse_to_tweets(statuses) do
