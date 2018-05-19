@@ -5,22 +5,22 @@ defmodule ExFeelsWeb.TwitterApi.Streamer do
 
   ## Client
 
-  def start_link(), do:
-    GenServer.start_link(__MODULE__, %{tweets: []}, name: __MODULE__)
+  def start_link(),
+    do: GenServer.start_link(__MODULE__, %{tweets: []}, name: __MODULE__)
 
-  def start_streaming(opts \\ [chunk_time: 5_000]), do:
-    GenServer.call(__MODULE__, {:start_streaming, opts})
+  def start_streaming(opts \\ [chunk_rate: 5_000]),
+    do: GenServer.call(__MODULE__, {:start_streaming, opts})
 
-  def stop_streaming(), do:
-    GenServer.call(__MODULE__, :stop_streaming)
+  def stop_streaming(),
+    do: GenServer.call(__MODULE__, :stop_streaming)
 
-  def get_stream(), do:
-    GenServer.call(__MODULE__, :get_stream)
+  def get_stream(),
+    do: GenServer.call(__MODULE__, :get_stream)
 
   ## Server
 
-  def init(stream_state), do:
-    {:ok, stream_state}
+  def init(stream_state),
+    do: {:ok, stream_state}
 
   def handle_call({:start_streaming, opts}, _from, stream_state) do
     {:ok, ref} = TwitterApi.stream_statuses(to: __MODULE__)
@@ -35,8 +35,8 @@ defmodule ExFeelsWeb.TwitterApi.Streamer do
     {:reply, :ok, stream_state |> Map.delete(:ref) |> Map.delete(:decoder)}
   end
 
-  def handle_call(:get_stream, _from, stream_state), do:
-    {:reply, stream_state, stream_state}
+  def handle_call(:get_stream, _from, stream_state),
+    do: {:reply, stream_state, stream_state}
 
   def handle_info({:hackney_response, ref, {:status, 200, "OK"}}, stream_state) do
     :hackney.stream_next(ref)
@@ -50,13 +50,14 @@ defmodule ExFeelsWeb.TwitterApi.Streamer do
     {:noreply, Map.put(stream_state, :ref, ref)}
   end
 
+  def handle_info({:hackney_response, _ref, :done}, stream_state),
+    do: {:noreply, stream_state}
+
   def handle_info({:hackney_response, ref, chunk}, stream_state) when is_binary(chunk) do
     stream_state =
       chunk
-      |> apply_decoder(stream_state)
+      |> try_apply_decoder(stream_state)
       |> put_decoded_stream_state(stream_state)
-
-    Process.sleep(stream_state.opts[:chunk_time])
 
     :hackney.stream_next(ref)
 
@@ -65,7 +66,7 @@ defmodule ExFeelsWeb.TwitterApi.Streamer do
 
   ## Private
 
-  defp apply_decoder(chunk, %{decoder: decoder}) do
+  defp try_apply_decoder(chunk, %{decoder: decoder}) do
     try do
       decoder.(:end_stream)
     rescue
@@ -74,7 +75,7 @@ defmodule ExFeelsWeb.TwitterApi.Streamer do
     end
   end
 
-  defp apply_decoder(chunk, _stream_state) do
+  defp try_apply_decoder(chunk, _stream_state) do
     try do
       :jsx.decode(chunk, [:stream])
     rescue
@@ -83,15 +84,17 @@ defmodule ExFeelsWeb.TwitterApi.Streamer do
     end
   end
 
-  defp put_decoded_stream_state({:incomplete, decoder}, stream_state), do:
-    Map.put(stream_state, :decoder, decoder)
+  defp put_decoded_stream_state({:incomplete, decoder}, stream_state),
+    do: Map.put(stream_state, :decoder, decoder)
 
   defp put_decoded_stream_state(:ok, stream_state),
     do: stream_state
 
   defp put_decoded_stream_state(json, stream_state) do
-    json = Enum.into(json, %{})
-    tweets = [json["text"] | stream_state.tweets]
+    Process.sleep(stream_state.opts[:chunk_rate])
+
+    tweet = Enum.into(json, %{})
+    tweets = [tweet["text"] | stream_state.tweets]
 
     stream_state
     |> Map.put(:tweets, tweets)
