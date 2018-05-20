@@ -1,25 +1,7 @@
-defmodule Twitter do
+defmodule Twitter.Search do
   alias Twitter.OAuth, as: Auth
 
   @rest_api "https://api.twitter.com/1.1"
-
-  def account_settings() do
-    url = @rest_api <> "/account/settings.json"
-    headers = [{"Authorization", Auth.oauth_header(:get, url)}]
-
-    case :hackney.get(url, headers, "", [:with_body]) do
-      {:ok, 200, _headers, resp_body} ->
-        resp_body
-        |> Poison.decode!()
-        |> Map.take(["language", "screen_name", "time_zone"])
-
-      {:ok, status, _headers, body} when status > 200 ->
-        {:error, Poison.decode!(body)}
-
-      error ->
-        {:error, "#{inspect error}"}
-    end
-  end
 
   def search(params) when is_map(params) do
     url = @rest_api <> "/search/tweets.json"
