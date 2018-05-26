@@ -15,7 +15,7 @@ defmodule Twitter do
   }
 
   @stream_opts [
-    chunk_rate: 2_000,
+    chunk_rate: 15_000,
     query_params: %{
       "track" => "bitcoin,crypto,currency,ethereum",
       "lang" => "en",

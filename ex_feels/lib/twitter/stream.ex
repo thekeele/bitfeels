@@ -1,6 +1,8 @@
 defmodule Twitter.Stream do
   use GenServer
 
+  require Logger
+
   alias Twitter.OAuth, as: Auth
 
   @stream_api "https://stream.twitter.com/1.1"
@@ -28,56 +30,18 @@ defmodule Twitter.Stream do
   def get_stream_status(),
     do: GenServer.call(__MODULE__, :get_stream_status)
 
-  ## Server stream handlers
+## Server side handlers
 
-  def handle_info({:hackney_response, ref, {:status, 200, "OK"}}, stream_state) do
-    :ok = :hackney.stream_next(ref)
-
-    {:noreply, put_in(stream_state, [:stream, :ref], ref)}
-  end
-
-  def handle_info({:hackney_response, ref, {:headers, _headers}}, stream_state) do
-    :ok = :hackney.stream_next(ref)
-
-    {:noreply, put_in(stream_state, [:stream, :ref], ref)}
-  end
-
-  def handle_info({:hackney_response, _ref, :done}, stream_state) do
-    {:ok, ref} = get_async_stream(stream_state.state.opts)
-
-    {:noreply, put_in(stream_state, [:stream, :ref], ref)}
-  end
-
-  def handle_info({:hackney_response, ref, ""}, stream_state) do
-    :ok = :hackney.stream_next(ref)
-
-    {:noreply, put_in(stream_state, [:stream, :ref], ref)}
-  end
-
-  def handle_info({:hackney_response, ref, chunk}, stream_state) when is_binary(chunk) do
-    stream_state =
-      chunk
-      |> try_apply_decoder(stream_state)
-      |> put_decoded_stream_state(stream_state)
-
-    # stop_streaming -> no match of right hand side value: {:error, :req_not_found}
-    :ok = :hackney.stream_next(ref)
-
-    {:noreply, put_in(stream_state, [:stream, :ref], ref)}
-  end
-
-  ## Server side API
-
-  def init(stream_state), do: {:ok, stream_state}
+  def init(stream_state), do: {:ok, stream_state |> log(":init")}
 
   def handle_call({:start_streaming, stream_opts}, _from, stream_state) do
-    {:ok, ref} = get_async_stream(stream_opts)
+    {:ok, ref} = get_async_stream(stream_opts) |> log(":start_streaming")
 
     {:reply, :ok, put_in(stream_state, [:stream], %{ref: ref, opts: stream_opts})}
   end
 
   def handle_call(:stop_streaming, _from, stream_state) do
-    {:ok, ref} = :hackney.stop_async(stream_state.stream[:ref])
+    {:ok, ref} = :hackney.stop_async(stream_state.stream[:ref]) |> log(":stop_streaming")
 
     resp = if is_reference(ref), do: :hackney.close(ref), else: :ok
 
@@ -109,6 +73,54 @@ defmodule Twitter.Stream do
     {:reply, stream_state.stream, stream_state}
   end
 
+  ## Server stream handlers
+
+  def handle_info({:hackney_response, ref, {:status, 200, "OK"}}, stream_state) do
+    :ok = :hackney.stream_next(ref) |> log(":status")
+
+    {:noreply, put_in(stream_state, [:stream, :ref], ref)}
+  end
+
+  def handle_info({:hackney_response, ref, {:headers, _headers}}, stream_state) do
+    :ok = :hackney.stream_next(ref) |> log(":headers")
+
+    {:noreply, put_in(stream_state, [:stream, :ref], ref)}
+  end
+
+  def handle_info({:hackney_response, _ref, :done}, stream_state) do
+    {:ok, ref} = get_async_stream(stream_state.stream.opts) |> log(":done")
+
+    {:noreply, put_in(stream_state, [:stream, :ref], ref)}
+  end
+
+  def handle_info({:hackney_response, ref, ""}, stream_state) do
+    :ok = :hackney.stream_next(ref) |> log(":empty")
+
+    {:noreply, put_in(stream_state, [:stream, :ref], ref)}
+  end
+
+  def handle_info({:hackney_response, ref, chunk}, stream_state) when is_binary(chunk) do
+    log(:ok, ":chunk")
+
+    stream_state =
+      chunk
+      |> try_apply_decoder(stream_state.stream)
+      |> put_decoded_stream_state(stream_state)
+
+    Process.sleep(stream_state.stream.opts[:chunk_rate])
+
+    stream_state =
+      case :hackney.stream_next(ref) do
+        :ok ->
+          put_in(stream_state, [:stream, :ref], ref)
+
+        {:error, :req_not_found}
+          stream_state
+      end
+
+    {:noreply, stream_state}
+  end
+
   ## Private
 
   defp get_async_stream(stream_opts) do
@@ -124,8 +136,9 @@ defmodule Twitter.Stream do
     )
   end
 
-  defp try_apply_decoder(chunk, %{stream: %{decoder: decoder}}) do
+  defp try_apply_decoder(chunk, %{decoder: decoder}) do
     try do
+      log(:ok, ":end_stream")
       decoder.(:end_stream)
     rescue
       _error in ArgumentError ->
@@ -135,23 +148,35 @@ defmodule Twitter.Stream do
 
   defp try_apply_decoder(chunk, _stream_state) do
     try do
-      :jsx.decode(chunk, [:stream, :return_maps])
+      :jsx.decode(chunk, [:stream, :return_maps]) |> log(":jsx.decode")
     rescue
       _error in ArgumentError ->
-        :ok
+        log(:bad_chunk, ":jsx.decode")
+        :bad_chunk
     end
   end
 
   defp put_decoded_stream_state({:incomplete, decoder}, stream_state),
     do: put_in(stream_state, [:stream, :decoder], decoder)
 
-  defp put_decoded_stream_state(:ok, stream_state), do: stream_state
+  defp put_decoded_stream_state(:bad_chunk, stream_state), do: stream_state
 
   defp put_decoded_stream_state(json, stream_state) do
-    tweets = [ExFeels.Twitter.Tweet.parse_to_tweets(json) | stream_state.tweets]
+    tweet = ExFeels.Twitter.Tweet.parse_to_tweets(json) |> log(":tweet")
 
-    Process.sleep(stream_state.stream.opts[:chunk_rate])
+    tweets = [tweet | stream_state.tweets]
 
     %{tweets: tweets, stream: Map.delete(stream_state.stream, :decoder)}
+  end
+
+  defp log(data, action) do
+    Logger.info fn ->
+      """
+      [#{action}]
+      #{inspect data}
+      """
+    end
+
+    data
   end
 end
