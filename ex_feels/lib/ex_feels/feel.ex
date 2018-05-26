@@ -1,8 +1,6 @@
 defmodule ExFeels.Feel do
   use Ecto.Schema
 
-  require Logger
-
   import Ecto.Query
 
   alias ExFeels.{Twitter.Tweet, Repo}
@@ -19,7 +17,10 @@ defmodule ExFeels.Feel do
     timestamps()
   end
 
-  def generate_feels(py_feel) do
+  def generate_feels(py_feels) when is_list(py_feels) do
+    Enum.map(py_feels, &generate_feels/1)
+  end
+  def generate_feels(py_feel) when is_atom(py_feel) do
     task = Task.async(fn -> run_py_feel(py_feel) end)
 
     Task.await(task, 10_000)
@@ -29,20 +30,9 @@ defmodule ExFeels.Feel do
     py_feel = Atom.to_string(py_feel)
 
     case System.cmd("python", ["#{py_feel}.py", "#{@env}"], cd: "../py_feels/binary") do
-      {_, 0} ->
-        Logger.info fn ->
-        """
-        #{py_feel} feel successful
-        """
-        end
+      {_, 0} -> :ok
 
-      error ->
-        Logger.info fn ->
-        """
-        #{py_feel} feel failed
-        error: #{inspect error}
-        """
-        end
+      _error -> :error
     end
   end
 

@@ -3,6 +3,17 @@ defmodule Twitter do
   Twitter API
   """
 
+  @search_opts %{
+    window: [months: -1],
+    params: %{
+      "q" => "bitcoin",
+      "count" => 10,
+      "lang" => "en",
+      "result_type" => "popular",
+      "tweet_mode" => "extended"
+    }
+  }
+
   @stream_opts [
     chunk_rate: 2_000,
     query_params: %{
@@ -15,7 +26,7 @@ defmodule Twitter do
     }
   ]
 
-  defdelegate search(query_params), to: Twitter.Search
+  defdelegate search(search_opts \\ @search_opts), to: Twitter.Search
   defdelegate start_streaming(stream_opts \\ @stream_opts), to: Twitter.Stream
   defdelegate stop_streaming(), to: Twitter.Stream
   defdelegate get_tweets(), to: Twitter.Stream

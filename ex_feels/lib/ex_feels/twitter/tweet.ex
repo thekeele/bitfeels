@@ -23,6 +23,35 @@ defmodule ExFeels.Twitter.Tweet do
     timestamps()
   end
 
+  def parse_to_tweets(statuses) when is_list(statuses) do
+    Enum.map(statuses, fn status ->
+      status = status["retweeted_status"] || status
+
+      status
+      |> take_status_data()
+      |> Map.put("hashtags", take_hashtags_data(status["entities"]["hashtags"]))
+      |> Map.put("user", take_user_data(status["user"]))
+    end)
+  end
+
+  def parse_to_tweets(error), do: error
+
+  defp take_status_data(status) do
+    keys = ["created_at", "id", "full_text", "retweet_count", "favorite_count", "lang"]
+
+    Map.take(status, keys)
+  end
+
+  defp take_hashtags_data(hashtags), do: Enum.map(hashtags, & &1["text"])
+
+  defp take_user_data(user) do
+    keys = [
+      "id", "screen_name", "followers_count", "favourites_count", "time_zone", "verified", "statuses_count"
+    ]
+
+    Map.take(user, keys)
+  end
+
   def changeset(struct \\ %__MODULE__{}, params \\ %{}, user \\ %User{}) do
     params = Map.put(params, "tweet_id", params["id"])
     params = Map.put(params, "text", params["full_text"])

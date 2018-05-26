@@ -2,8 +2,10 @@ defmodule Twitter.OAuth do
   # https://developer.twitter.com/en/docs/basics/authentication/guides/authorizing-a-request
 
   def oauth_header(method, url, params \\ %{})
+
   def oauth_header(method, url, params) when is_atom(method),
     do: oauth_header(Atom.to_string(method), url, params)
+
   def oauth_header(method, url, params) when is_binary(method) do
     method = String.upcase(method)
     nonce = nonce()
