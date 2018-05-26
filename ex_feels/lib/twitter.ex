@@ -31,4 +31,6 @@ defmodule Twitter do
   defdelegate stop_streaming(), to: Twitter.Stream
   defdelegate get_tweets(), to: Twitter.Stream
   defdelegate get_latest_tweet(), to: Twitter.Stream
+  defdelegate take_tweets_from_stream(amount \\ 5), to: Twitter.Stream
+  defdelegate get_stream_status(), to: Twitter.Stream
 end

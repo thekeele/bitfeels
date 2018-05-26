@@ -23,6 +23,9 @@ defmodule ExFeels.Twitter.Tweet do
     timestamps()
   end
 
+  def parse_to_tweets(status) when is_map(status) do
+    parse_to_tweets([status])
+  end
   def parse_to_tweets(statuses) when is_list(statuses) do
     Enum.map(statuses, fn status ->
       status = status["retweeted_status"] || status
@@ -37,7 +40,7 @@ defmodule ExFeels.Twitter.Tweet do
   def parse_to_tweets(error), do: error
 
   defp take_status_data(status) do
-    keys = ["created_at", "id", "full_text", "retweet_count", "favorite_count", "lang"]
+    keys = ["created_at", "id", "text", "full_text", "retweet_count", "favorite_count", "lang"]
 
     Map.take(status, keys)
   end

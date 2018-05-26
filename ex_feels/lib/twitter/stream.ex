@@ -5,10 +5,10 @@ defmodule Twitter.Stream do
 
   @stream_api "https://stream.twitter.com/1.1"
 
-  ## Client
+  ## Client side API
 
   def start_link(),
-    do: GenServer.start_link(__MODULE__, %{tweets: []}, name: __MODULE__)
+    do: GenServer.start_link(__MODULE__, %{tweets: [], stream: %{}}, name: __MODULE__)
 
   def start_streaming(opts),
     do: GenServer.call(__MODULE__, {:start_streaming, opts})
@@ -22,60 +22,36 @@ defmodule Twitter.Stream do
   def get_latest_tweet(),
     do: GenServer.call(__MODULE__, :get_latest_tweet)
 
-  ## Server
+  def take_tweets_from_stream(amount),
+    do: GenServer.call(__MODULE__, {:take_tweets_from_stream, amount})
 
-  def init(stream_state), do: {:ok, stream_state}
+  def get_stream_status(),
+    do: GenServer.call(__MODULE__, :get_stream_status)
 
-  def handle_call({:start_streaming, stream_opts}, _from, stream_state) do
-    {:ok, ref} = get_async_stream(stream_opts)
-
-    {:reply, :ok, stream_state |> Map.put(:ref, ref) |> Map.put(:opts, stream_opts)}
-  end
-
-  def handle_call(:stop_streaming, _from, stream_state) do
-    {:ok, ref} = :hackney.stop_async(stream_state[:ref])
-
-    resp = if is_reference(ref), do: :hackney.close(ref), else: :ok
-
-    {:reply, resp, %{tweets: stream_state.tweets}}
-  end
-
-  def handle_call(:get_tweets, _from, stream_state),
-    do: {:reply, stream_state.tweets, stream_state}
-
-  def handle_call(:get_latest_tweet, _from, stream_state) do
-    latest_tweet = List.first(stream_state.tweets)
-
-    current_state = %{
-      latest_tweet: latest_tweet,
-      stream: %{ref: stream_state[:ref], decoder: stream_state[:decoder], opts: stream_state[:opts]}
-    }
-
-    {:reply, current_state, stream_state}
-  end
+  ## Server stream handlers
 
   def handle_info({:hackney_response, ref, {:status, 200, "OK"}}, stream_state) do
     :ok = :hackney.stream_next(ref)
 
-    {:noreply, Map.put(stream_state, :ref, ref)}
+    {:noreply, put_in(stream_state, [:stream, :ref], ref)}
   end
 
   def handle_info({:hackney_response, ref, {:headers, _headers}}, stream_state) do
     :ok = :hackney.stream_next(ref)
 
-    {:noreply, Map.put(stream_state, :ref, ref)}
+    {:noreply, put_in(stream_state, [:stream, :ref], ref)}
   end
 
   def handle_info({:hackney_response, _ref, :done}, stream_state) do
-    {:ok, ref} = get_async_stream(stream_state.opts)
+    {:ok, ref} = get_async_stream(stream_state.state.opts)
 
-    {:noreply, Map.put(stream_state, :ref, ref)}
+    {:noreply, put_in(stream_state, [:stream, :ref], ref)}
   end
 
   def handle_info({:hackney_response, ref, ""}, stream_state) do
     :ok = :hackney.stream_next(ref)
 
-    {:noreply, Map.put(stream_state, :ref, ref)}
+    {:noreply, put_in(stream_state, [:stream, :ref], ref)}
   end
 
   def handle_info({:hackney_response, ref, chunk}, stream_state) when is_binary(chunk) do
@@ -84,9 +60,53 @@ defmodule Twitter.Stream do
       |> try_apply_decoder(stream_state)
       |> put_decoded_stream_state(stream_state)
 
+    # stop_streaming -> no match of right hand side value: {:error, :req_not_found}
     :ok = :hackney.stream_next(ref)
 
-    {:noreply, Map.put(stream_state, :ref, ref)}
+    {:noreply, put_in(stream_state, [:stream, :ref], ref)}
+  end
+
+  ## Server side API
+
+  def init(stream_state), do: {:ok, stream_state}
+
+  def handle_call({:start_streaming, stream_opts}, _from, stream_state) do
+    {:ok, ref} = get_async_stream(stream_opts)
+
+    {:reply, :ok, put_in(stream_state, [:stream], %{ref: ref, opts: stream_opts})}
+  end
+
+  def handle_call(:stop_streaming, _from, stream_state) do
+    {:ok, ref} = :hackney.stop_async(stream_state.stream[:ref])
+
+    resp = if is_reference(ref), do: :hackney.close(ref), else: :ok
+
+    {:reply, resp, %{tweets: stream_state.tweets, stream: %{}}}
+  end
+
+  def handle_call(:get_tweets, _from, stream_state),
+    do: {:reply, stream_state.tweets, stream_state}
+
+  def handle_call(:get_latest_tweet, _from, stream_state) do
+    latest_tweet = List.first(stream_state.tweets) || %{}
+
+    {:reply, latest_tweet, stream_state}
+  end
+
+  def handle_call({:take_tweets_from_stream, amount}, _from, stream_state) do
+    taken_tweets = Enum.take(stream_state.tweets, amount)
+
+    stream_tweets =
+      stream_state.tweets
+      |> MapSet.new()
+      |> MapSet.difference(MapSet.new(taken_tweets))
+      |> MapSet.to_list()
+
+    {:reply, taken_tweets, %{tweets: stream_tweets, stream: stream_state.stream}}
+  end
+
+  def handle_call(:get_stream_status, _from, stream_state) do
+    {:reply, stream_state.stream, stream_state}
   end
 
   ## Private
@@ -97,14 +117,14 @@ defmodule Twitter.Stream do
     headers = ["Authorization": Auth.oauth_header(:get, url, params)]
 
     :hackney.get(
-      "#{url}?#{URI.encode_query(params)}",
+      url <> "?#{URI.encode_query(params)}",
       headers,
       "",
       [{:async, :once}, {:stream_to, __MODULE__}]
     )
   end
 
-  defp try_apply_decoder(chunk, %{decoder: decoder}) do
+  defp try_apply_decoder(chunk, %{stream: %{decoder: decoder}}) do
     try do
       decoder.(:end_stream)
     rescue
@@ -123,17 +143,15 @@ defmodule Twitter.Stream do
   end
 
   defp put_decoded_stream_state({:incomplete, decoder}, stream_state),
-    do: Map.put(stream_state, :decoder, decoder)
+    do: put_in(stream_state, [:stream, :decoder], decoder)
 
   defp put_decoded_stream_state(:ok, stream_state), do: stream_state
 
   defp put_decoded_stream_state(json, stream_state) do
-    tweets = [json | stream_state.tweets]
+    tweets = [ExFeels.Twitter.Tweet.parse_to_tweets(json) | stream_state.tweets]
 
-    Process.sleep(stream_state.opts[:chunk_rate])
+    Process.sleep(stream_state.stream.opts[:chunk_rate])
 
-    stream_state
-    |> Map.put(:tweets, tweets)
-    |> Map.delete(:decoder)
+    %{tweets: tweets, stream: Map.delete(stream_state.stream, :decoder)}
   end
 end
