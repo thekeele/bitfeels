@@ -42,7 +42,6 @@ defmodule ExFeels.Mixfile do
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
       {:hackney, "~> 1.8"},
-      {:jsx, "~> 2.9"},
       {:timex, "~> 3.2"},
       {:scrivener_ecto, "~> 1.0"},
       {:scrivener_html, "~> 1.7"}

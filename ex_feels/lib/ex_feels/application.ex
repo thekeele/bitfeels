@@ -8,8 +8,7 @@ defmodule ExFeels.Application do
     children = [
       supervisor(ExFeels.Repo, []),
       supervisor(ExFeelsWeb.Endpoint, []),
-      worker(ExFeels.FeelFetcher, []),
-      worker(Twitter.Stream, [])
+      worker(ExFeels.FeelFetcher, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
