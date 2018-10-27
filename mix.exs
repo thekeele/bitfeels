@@ -13,14 +13,18 @@ defmodule Bitfeels.MixProject do
 
   def application do
     [
-      extra_applications: [:logger, :twitter_stream],
+      extra_applications: [:logger],
       mod: {Bitfeels.Application, []}
     ]
   end
 
   defp deps do
     [
-      {:twitter_stream, path: "../twitter_stream"}
+      {:twitter_stream, git: "git@github.com:thekeele/twitter_stream.git", tag: "v0.1.0"},
+      {:gen_stage, "~> 0.14"},
+      {:ecto, "~> 3.0-rc", override: true},
+      {:ecto_sql, "~> 3.0-rc", override: true},
+      {:postgrex, "~> 0.14.0-rc"},
     ]
   end
 end
