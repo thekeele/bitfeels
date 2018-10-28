@@ -1,4 +1,4 @@
-defmodule Bitfeels.Pipeline do
+defmodule Bitfeels.TweetPipeline do
   use Supervisor
 
   def start_link(opts) do
@@ -7,6 +7,7 @@ defmodule Bitfeels.Pipeline do
 
   def init(opts) do
     children = [
+      worker(__MODULE__.Parser, [opts]),
       worker(__MODULE__.Sentiment, [opts]),
       worker(__MODULE__.Datastore, [opts])
     ]

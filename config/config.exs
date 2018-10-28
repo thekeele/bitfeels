@@ -10,4 +10,4 @@ config :bitfeels,
 config :bitfeels, Bitfeels.Application,
   twitter_stream: %{"track" => "bitcoin"},
   source_counter: 0,
-  tweet_pipeline: [max_demand: 10, min_demand: 5]
+  tweet_pipeline: [max_demand: 5, min_demand: 2]

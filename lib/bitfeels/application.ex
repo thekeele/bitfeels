@@ -8,9 +8,9 @@ defmodule Bitfeels.Application do
 
     children = [
       worker(TwitterStream.RealtimeTweets, [opts[:twitter_stream]]),
-      worker(Bitfeels.Source, [opts[:source_counter]]),
-      supervisor(Bitfeels.Pipeline, [opts[:tweet_pipeline]]),
-      supervisor(Bitfeels.Repo, [])
+      worker(Bitfeels.TweetSource, [opts[:source_counter]]),
+      supervisor(Bitfeels.TweetPipeline, [opts[:tweet_pipeline]]),
+      # supervisor(Bitfeels.Repo, [])
     ]
 
     opts = [strategy: :one_for_one, name: Bitfeels.Supervisor]
