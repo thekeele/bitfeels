@@ -15,6 +15,6 @@
   "postgrex": {:hex, :postgrex, "0.14.0-rc.1", "a88cbeab25c5f3fc505fc6590bd30877a5acf11b448aedb23b41cbc063824ceb", [:mix], [{:connection, "~> 1.0", [hex: :connection, repo: "hexpm", optional: false]}, {:db_connection, "~> 2.0-rc.0", [hex: :db_connection, repo: "hexpm", optional: false]}, {:decimal, "~> 1.0", [hex: :decimal, repo: "hexpm", optional: false]}, {:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: true]}], "hexpm"},
   "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.4", "f0eafff810d2041e93f915ef59899c923f4568f4585904d010387ed74988e77b", [:make, :mix, :rebar3], [], "hexpm"},
   "telemetry": {:hex, :telemetry, "0.2.0", "5b40caa3efe4deb30fb12d7cd8ed4f556f6d6bd15c374c2366772161311ce377", [:mix], [], "hexpm"},
-  "twitter_stream": {:git, "git@github.com:thekeele/twitter_stream.git", "d7d933c35f1e569e8d69d9bcb40ad4dfdda96066", [tag: "v0.1.0"]},
+  "twitter_stream": {:git, "git@github.com:thekeele/twitter_stream.git", "2cecc479648821067254b20b10964b29738a65f7", [tag: "v0.1.1"]},
   "unicode_util_compat": {:hex, :unicode_util_compat, "0.4.1", "d869e4c68901dd9531385bb0c8c40444ebf624e60b6962d95952775cac5e90cd", [:rebar3], [], "hexpm"},
 }
