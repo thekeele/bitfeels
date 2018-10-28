@@ -20,7 +20,7 @@ defmodule Bitfeels.MixProject do
 
   defp deps do
     [
-      {:twitter_stream, git: "git@github.com:thekeele/twitter_stream.git", tag: "v0.1.0"},
+      {:twitter_stream, git: "git@github.com:thekeele/twitter_stream.git", tag: "v0.1.1"},
       {:gen_stage, "~> 0.14"},
       {:ecto, "~> 3.0-rc", override: true},
       {:ecto_sql, "~> 3.0-rc", override: true},
