@@ -1,0 +1,8 @@
+{
+  "name": "phoenix_html",
+  "version": "2.10.5",
+  "main": "./priv/static/phoenix_html.js",
+  "repository": {
+  },
+  "files": ["LICENSE.md", "package.json", "priv/static/phoenix_html.js"]
+}
