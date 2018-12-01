@@ -10,7 +10,6 @@ defmodule Bitfeels.Application do
       worker(TwitterStream.RealtimeTweets, [opts[:twitter_stream]]),
       worker(Bitfeels.TweetSource, []),
       supervisor(Bitfeels.TweetPipeline, [opts[:tweet_pipeline]]),
-      # supervisor(Bitfeels.Repo, [])
     ]
 
     opts = [strategy: :one_for_one, name: Bitfeels.Supervisor]
