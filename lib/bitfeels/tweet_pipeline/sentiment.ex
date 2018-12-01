@@ -21,7 +21,7 @@ defmodule Bitfeels.TweetPipeline.Sentiment do
     {:noreply, tweets, :ok}
   end
 
-  def sentiment_analysis(tweet) do
+  defp sentiment_analysis(tweet) do
     text = tweet["text"]
     url = "http://localhost:1337/score"
     headers = [{"Content-Type", "application/json"}]
