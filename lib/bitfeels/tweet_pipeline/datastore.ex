@@ -11,7 +11,7 @@ defmodule Bitfeels.TweetPipeline.Datastore do
 
   def handle_events(tweets, _from, :ok) do
     for {tweet_id, _tweet} <- tweets do
-      IO.puts "persisting data for tweet_id: #{tweet_id}"
+      IO.puts "persisting tweet.... #{tweet_id}"
       :timer.sleep(2_000)
     end
 

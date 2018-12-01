@@ -8,7 +8,7 @@ defmodule Bitfeels.Application do
 
     children = [
       worker(TwitterStream.RealtimeTweets, [opts[:twitter_stream]]),
-      worker(Bitfeels.TweetSource, [opts[:source_counter]]),
+      worker(Bitfeels.TweetSource, []),
       supervisor(Bitfeels.TweetPipeline, [opts[:tweet_pipeline]]),
       # supervisor(Bitfeels.Repo, [])
     ]
