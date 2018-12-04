@@ -22,6 +22,8 @@ defmodule Bitfeels.MixProject do
     [
       {:twitter_stream, git: "git@github.com:thekeele/twitter_stream.git", tag: "v0.1.1"},
       {:gen_stage, "~> 0.14"},
+      {:hackney, "~> 1.14.3"},
+      {:jason, "~> 1.1"},
       {:ecto, "~> 3.0-rc", override: true},
       {:ecto_sql, "~> 3.0-rc", override: true},
       {:postgrex, "~> 0.14.0-rc"},
