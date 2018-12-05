@@ -12,26 +12,33 @@ defmodule Bitfeels.TweetPipeline.Sentiment do
   def handle_events(tweets, _from, :ok) do
     tweets =
       for {tweet_id, tweet} <- tweets do
-        sentiment = sentiment_analysis(tweet)
-        IO.puts "sentiment.... #{tweet_id}:#{sentiment}"
+        %{"tweets" => tweets} = sentiment_analysis(tweet)
+        %{"sentiment" => sentiment, "score" => score} = List.first(tweets)
+        IO.puts "sentiment.... #{tweet_id}:#{sentiment}:#{score}"
 
-        {tweet_id, Map.put(tweet, "sentiment", sentiment)}
+        tweets
       end
 
     {:noreply, tweets, :ok}
   end
 
-  defp sentiment_analysis(tweet) do
-    text = tweet["text"]
+  defp sentiment_analysis(%{"id" => _, "text" => _} = tweet) do
     url = "http://localhost:1337/score"
     headers = [{"Content-Type", "application/json"}]
-    body = Jason.encode!(%{"text" => text})
+    body = Jason.encode!(%{"tweets" => [tweet]})
     opts = [:with_body]
 
     case :hackney.post(url, headers, body, opts) do
       {:ok, 200, _headers, resp} ->
-        %{"sentiment" => [sentiment]} = Jason.decode!(resp)
-        sentiment
+        Jason.decode!(resp)
+
+      {:ok, 400, _headers, resp} ->
+        IO.inspect(resp, label: "error")
+        nil
+
+      {:ok, 403, _headers, resp} ->
+        IO.inspect(resp, label: "error")
+        nil
 
       error ->
         IO.inspect(error, label: "error")
