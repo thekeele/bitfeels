@@ -10,13 +10,12 @@ defmodule Bitfeels.TweetPipeline.Parser do
   end
 
   def handle_events(tweets, _from, :ok) do
-    tweets =
+    parsed_tweets =
       for {tweet_id, status} <- tweets do
-        IO.puts "parsing tweet.... #{tweet_id}"
         {tweet_id, parse_to_tweet(status)}
       end
 
-    {:noreply, tweets, :ok}
+    {:noreply, parsed_tweets, :ok}
   end
 
   def parse_to_tweet(status) when is_map(status) do
