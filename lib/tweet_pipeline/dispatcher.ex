@@ -27,7 +27,7 @@ defmodule Bitfeels.TweetPipeline.Dispatcher do
 
       case Process.whereis(sink) do
         nil -> :ok
-        sink -> Process.send(sink, {:ok, {tweet_id, tweet}}, [:noconnect])
+        sink -> Process.send(sink, {:tweet, {tweet_id, tweet}}, [:noconnect])
       end
     end
 
