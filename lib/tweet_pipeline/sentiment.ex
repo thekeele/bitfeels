@@ -8,16 +8,21 @@ defmodule Bitfeels.TweetPipeline.Sentiment do
   end
 
   def init(opts) do
-    {:producer_consumer, :ok, subscribe_to: [{Bitfeels.TweetPipeline.Parser, opts}]}
+    {:producer_consumer, opts, subscribe_to: [{Bitfeels.TweetPipeline.Parser, opts}]}
   end
 
-  def handle_events(tweets, _from, :ok) do
+  def handle_events(tweets, _from, opts) do
     tweets_with_sentiment =
       for {tweet_id, tweet} <- tweets do
-        {tweet_id, tweet |> sentiment_analysis() |> put_sentiment_score(tweet)}
+        tweet_with_sentiment =
+          tweet
+          |> sentiment_analysis()
+          |> put_sentiment_score(tweet)
+
+        {tweet_id, tweet_with_sentiment}
       end
 
-    {:noreply, tweets_with_sentiment, :ok}
+    {:noreply, tweets_with_sentiment, opts}
   end
 
   defp sentiment_analysis(%{"id" => _, "text" => _} = tweet) do
@@ -35,8 +40,8 @@ defmodule Bitfeels.TweetPipeline.Sentiment do
     end
   end
 
-  defp put_sentiment_score(scores, tweet) do
-    case scores do
+  defp put_sentiment_score(tweets, tweet) do
+    case tweets do
       [%{"sentiment" => sentiment, "score" => score} | _] ->
         tweet
         |> Map.put("sentiment", sentiment)
