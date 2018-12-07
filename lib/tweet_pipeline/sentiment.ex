@@ -1,6 +1,8 @@
 defmodule Bitfeels.TweetPipeline.Sentiment do
   use GenStage
 
+  require Logger
+
   def start_link(opts) do
     GenStage.start_link(__MODULE__, opts, name: __MODULE__)
   end
@@ -10,16 +12,12 @@ defmodule Bitfeels.TweetPipeline.Sentiment do
   end
 
   def handle_events(tweets, _from, :ok) do
-    tweets =
+    tweets_with_sentiment =
       for {tweet_id, tweet} <- tweets do
-        %{"tweets" => tweets} = sentiment_analysis(tweet)
-        %{"sentiment" => sentiment, "score" => score} = List.first(tweets)
-        IO.puts "sentiment.... #{tweet_id}:#{sentiment}:#{score}"
-
-        tweets
+        {tweet_id, tweet |> sentiment_analysis() |> put_sentiment_score(tweet)}
       end
 
-    {:noreply, tweets, :ok}
+    {:noreply, tweets_with_sentiment, :ok}
   end
 
   defp sentiment_analysis(%{"id" => _, "text" => _} = tweet) do
@@ -30,19 +28,22 @@ defmodule Bitfeels.TweetPipeline.Sentiment do
 
     case :hackney.post(url, headers, body, opts) do
       {:ok, 200, _headers, resp} ->
-        Jason.decode!(resp)
-
-      {:ok, 400, _headers, resp} ->
-        IO.inspect(resp, label: "error")
-        nil
-
-      {:ok, 403, _headers, resp} ->
-        IO.inspect(resp, label: "error")
-        nil
+        Jason.decode!(resp)["tweets"]
 
       error ->
-        IO.inspect(error, label: "error")
-        nil
+        Logger.error("#{inspect(error)}")
+    end
+  end
+
+  defp put_sentiment_score(scores, tweet) do
+    case scores do
+      [%{"sentiment" => sentiment, "score" => score} | _] ->
+        tweet
+        |> Map.put("sentiment", sentiment)
+        |> Map.put("score", score)
+
+      _ ->
+        tweet
     end
   end
 end
