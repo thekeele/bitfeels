@@ -5,7 +5,6 @@ defmodule Bitfeels.Application do
     import Supervisor.Spec
 
     twitter_stream = Application.get_env(:bitfeels, :twitter_stream)
-    tweet_pipeline = Application.get_env(:bitfeels, :tweet_pipeline)
 
     children = [
       worker(TwitterStream.RealtimeTweets, [%{
@@ -13,10 +12,14 @@ defmodule Bitfeels.Application do
         "language" => twitter_stream[:language] || "en",
         "filter_level" => twitter_stream[:filter_level] || "none"
       }]),
-      worker(Bitfeels.TweetSource, []),
+      worker(Bitfeels.TweetSource, [[
+        counter: 0,
+        source: TwitterStream,
+        fun: :take_tweet
+      ]]),
       supervisor(Bitfeels.TweetPipeline, [[
-        max_demand: tweet_pipeline[:max_demand] || 10,
-        min_demand: tweet_pipeline[:min_demand] || 3
+        max_demand: 10,
+        min_demand: 3
       ]]),
     ]
 

@@ -1,25 +1,26 @@
 defmodule Bitfeels.TweetSource do
   use GenStage
 
-  def start_link(counter \\ 0) do
-    GenStage.start_link(__MODULE__, counter, name: __MODULE__)
+  def start_link(opts) do
+    GenStage.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
-  def init(counter) do
-    {:producer, counter}
+  def init(opts) do
+    {:producer, {opts[:counter], opts}}
   end
 
-  def handle_demand(demand, counter) when demand > 0 do
+  def handle_demand(demand, {counter, opts}) when demand > 0 do
     tweets =
-      for _ <- counter..counter+demand-1 do
-        # wait for demand
+      for _ <- counter..(counter + demand - 1) do
+        # wait for demand to build
         :timer.sleep(3_000)
+
         IO.puts "taking tweet...."
-        TwitterStream.take_tweet()
+        apply(opts[:source], opts[:fun], [])
       end
 
     tweets = List.flatten(tweets)
 
-    {:noreply, tweets, counter + demand}
+    {:noreply, tweets, {counter + demand, opts}}
   end
 end
