@@ -1,4 +1,4 @@
-defmodule Bitfeels.TweetPipeline.Datastore do
+defmodule Bitfeels.TweetPipeline.Dispatcher do
   use GenStage
 
   def start_link(opts) do
@@ -11,7 +11,7 @@ defmodule Bitfeels.TweetPipeline.Datastore do
 
   def handle_events(tweets, _from, :ok) do
     for {tweet_id, _tweet} <- tweets do
-      IO.puts "persisting tweet.... #{tweet_id}"
+      IO.puts "dispatching tweet.... #{tweet_id}"
       :timer.sleep(2_000)
     end
 

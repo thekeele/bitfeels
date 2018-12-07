@@ -24,9 +24,6 @@ defmodule Bitfeels.MixProject do
       {:gen_stage, "~> 0.14"},
       {:hackney, "~> 1.14.3"},
       {:jason, "~> 1.1"},
-      {:ecto, "~> 3.0-rc", override: true},
-      {:ecto_sql, "~> 3.0-rc", override: true},
-      {:postgrex, "~> 0.14.0-rc"},
     ]
   end
 end
