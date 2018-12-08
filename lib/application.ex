@@ -4,12 +4,25 @@ defmodule Bitfeels.Application do
   def start(_type, _args) do
     import Supervisor.Spec
 
-    opts = Application.get_env(:bitfeels, __MODULE__)
+    twitter_stream = Application.get_env(:bitfeels, :twitter_stream)
+    tweet_pipeline = Application.get_env(:bitfeels, :tweet_pipeline)
 
     children = [
-      worker(TwitterStream.RealtimeTweets, [opts[:twitter_stream]]),
-      worker(Bitfeels.TweetSource, []),
-      supervisor(Bitfeels.TweetPipeline, [opts[:tweet_pipeline]]),
+      worker(TwitterStream.RealtimeTweets, [%{
+        "track" => twitter_stream[:track] || "bitcoin",
+        "language" => twitter_stream[:language] || "en",
+        "filter_level" => twitter_stream[:filter_level] || "none"
+      }]),
+      worker(Bitfeels.TweetSource, [[
+        counter: 0,
+        source: TwitterStream,
+        fun: :take_tweet
+      ]]),
+      supervisor(Bitfeels.TweetPipeline, [[
+        max_demand: 10,
+        min_demand: 3,
+        sink_to: tweet_pipeline[:sink] || :bitfeels_sink
+      ]]),
     ]
 
     opts = [strategy: :one_for_one, name: Bitfeels.Supervisor]

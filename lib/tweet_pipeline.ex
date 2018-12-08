@@ -9,7 +9,7 @@ defmodule Bitfeels.TweetPipeline do
     children = [
       worker(__MODULE__.Parser, [opts]),
       worker(__MODULE__.Sentiment, [opts]),
-      worker(__MODULE__.Datastore, [opts])
+      worker(__MODULE__.Dispatcher, [opts])
     ]
 
     opts = [strategy: :one_for_one, name: __MODULE__]
