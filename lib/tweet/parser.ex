@@ -1,22 +1,4 @@
-defmodule Bitfeels.TweetPipeline.Parser do
-  use GenStage
-
-  def start_link(opts) do
-    GenStage.start_link(__MODULE__, opts, name: __MODULE__)
-  end
-
-  def init(opts) do
-    {:producer_consumer, opts, subscribe_to: [{Bitfeels.TweetSource, opts}]}
-  end
-
-  def handle_events(tweets, _from, opts) do
-    parsed_tweets =
-      for {tweet_id, status} <- tweets do
-        {tweet_id, parse_to_tweet(status)}
-      end
-
-    {:noreply, parsed_tweets, opts}
-  end
+defmodule Bitfeels.Tweet.Parser do
 
   def parse_to_tweet(status) when is_map(status) do
     status
