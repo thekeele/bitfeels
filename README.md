@@ -1,9 +1,10 @@
 # bitfeels
-Steaming sentiment analysis for cryptos
+Realtime tweet analysis for predicting Bitcoin sentiment.
 
-Built with:
-* Elixir v1.5.1
-* Phoenix v1.3.0
-* Python v3.6.3
-* Scikit/learn v0.19.1
-* Pandas v0.21.0
+#### setup
+` mix deps.get `
+
+Install and start [senPyTweet](https://github.com/rcehemann/senPyTweet "spaCy-based tweet sentiment API")
+
+#### run
+` iex -S mix `
