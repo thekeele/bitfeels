@@ -1,9 +1,11 @@
 defmodule Bitfeels.Tweet.Sentiment do
 
   def sentiment_analysis(%{"id" => _, "text" => _} = tweet) do
-    url = "http://localhost:5000/score"
+    sentiment = Application.get_env(:bitfeels, :sentiment)
+
+    url = sentiment[:url]
     headers = [{"Content-Type", "application/json"}]
-    body = Jason.encode!(%{"model" => "spacy", "tweets" => [tweet]})
+    body = Jason.encode!(%{"model" => sentiment[:model], "tweets" => [tweet]})
     opts = [:with_body]
 
     case :hackney.post(url, headers, body, opts) do

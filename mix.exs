@@ -1,7 +1,11 @@
 defmodule Bitfeels.MixProject do
   use Mix.Project
 
+<<<<<<< HEAD
   @version "2.0.0"
+=======
+  @version "2.0.1"
+>>>>>>> release/v2.0.1
 
   def project do
     [
@@ -29,7 +33,11 @@ defmodule Bitfeels.MixProject do
 
   defp deps do
     [
+<<<<<<< HEAD
       {:twitter_stream, git: "git@github.com:thekeele/twitter_stream.git", tag: "v0.2.1"},
+=======
+      {:twitter_stream, github: "thekeele/twitter_stream", tag: "v0.2.1"},
+>>>>>>> release/v2.0.1
       {:gen_stage, "~> 0.14"},
       {:hackney, "~> 1.14.3"},
       {:jason, "~> 1.1"},
