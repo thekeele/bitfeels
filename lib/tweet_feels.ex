@@ -12,7 +12,7 @@ defmodule Bitfeels.TweetFeels do
   end
 
   def handle_events(tweets, _from, opts) do
-    for %{"id" => tweet_id} = status <- tweets do
+    for %{"id" => _} = status <- tweets do
       tweet = Tweet.Parser.parse_to_tweet(status)
 
       tweet_with_sentiment =
@@ -20,7 +20,7 @@ defmodule Bitfeels.TweetFeels do
         |> Tweet.Sentiment.sentiment_analysis()
         |> Tweet.Sentiment.put_sentiment_score(tweet)
 
-      send(opts[:sink], {:tweet, {tweet_id, tweet_with_sentiment}})
+      send(opts[:sink], {:tweet, {tweet["id"], tweet_with_sentiment}})
     end
 
     {:noreply, [], opts}

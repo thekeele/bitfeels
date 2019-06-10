@@ -1,29 +1,46 @@
 defmodule Bitfeels.Tweet.Parser do
 
-  def parse_to_tweet(%{"extended_tweet" => %{"full_text" => text}} = status) do
-    parse_tweet_data(status, text)
-  end
-
-  def parse_to_tweet(%{"retweeted_status" => status}) do
-    text = status["extended_tweet"]["full_text"] || status["text"]
-
-    parse_tweet_data(status, text)
-  end
-
-  def parse_to_tweet(%{"quoted_status" => status}) do
-    text = status["extended_tweet"]["full_text"] || status["text"]
-
-    parse_tweet_data(status, text)
-  end
-
-  def parse_to_tweet(%{"text" => text} = status) do
-    parse_tweet_data(status, text)
-  end
-
-  defp parse_tweet_data(status, text) do
+  def parse_to_tweet(%{"extended_tweet" => extended_tweet} = status) do
     status
-    |> Map.take(["created_at", "id", "reply_count", "retweet_count", "favorite_count", "lang"])
+    |> Map.take(["created_at", "reply_count", "retweet_count", "favorite_count", "lang"])
+    |> Map.put("id", status["id"])
+    |> Map.put("text", extended_tweet["full_text"])
+    |> Map.put("type", "extended_tweet")
+    |> Map.put("hashtags", parse_hashtags(extended_tweet))
+    |> Map.put("user", parse_user(status))
+  end
+
+  def parse_to_tweet(%{"retweeted_status" => retweeted_status} = status) do
+    text = retweeted_status["extended_tweet"]["full_text"] || retweeted_status["text"]
+
+    status
+    |> Map.take(["created_at", "reply_count", "retweet_count", "favorite_count", "lang"])
+    |> Map.put("id", retweeted_status["id"])
     |> Map.put("text", text)
+    |> Map.put("type", "retweeted_status")
+    |> Map.put("hashtags", parse_hashtags(retweeted_status))
+    |> Map.put("user", parse_user(retweeted_status))
+  end
+
+  def parse_to_tweet(%{"quoted_status" => quoted_status} = status) do
+    text = quoted_status["extended_tweet"]["full_text"] || quoted_status["text"]
+
+    status
+    |> Map.take(["created_at", "reply_count", "retweet_count", "favorite_count", "lang"])
+    |> Map.put("id", quoted_status["id"])
+    |> Map.put("text", text)
+    |> Map.put("type", "quoted_status")
+    |> Map.put("hashtags", parse_hashtags(quoted_status))
+    |> Map.put("user", parse_user(quoted_status))
+  end
+
+  def parse_to_tweet(%{"text" => _} = status) do
+    status
+    |> Map.take([
+      "text", "created_at", "reply_count", "retweet_count", "favorite_count", "lang"
+    ])
+    |> Map.put("id", status["id"])
+    |> Map.put("type", "text")
     |> Map.put("hashtags", parse_hashtags(status))
     |> Map.put("user", parse_user(status))
   end
