@@ -29,7 +29,7 @@ defmodule Bitfeels.MixProject do
 
   defp deps do
     [
-      {:twitter_stream, github: "thekeele/twitter_stream", tag: "v0.2.1"},
+      {:twitter_stream, github: "thekeele/twitter_stream", tag: "v0.2.2"},
       {:gen_stage, "~> 0.14"},
       {:hackney, "~> 1.14.3"},
       {:jason, "~> 1.1"},
