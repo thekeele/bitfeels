@@ -1,15 +1,15 @@
-defmodule Bitfeels.TweetDispatcher do
+defmodule Bitfeels.Pipeline.Dispatcher do
   use GenStage
 
-  def start_link() do
-    GenStage.start_link(__MODULE__, :ok, name: __MODULE__)
+  def start_link(opts) do
+    GenStage.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
   def notify(event, timeout \\ 1000) do
     GenStage.call(__MODULE__, {:notify, event}, timeout)
   end
 
-  def init(:ok) do
+  def init(_opts) do
     {:producer, {:queue.new, 0}, dispatcher: GenStage.BroadcastDispatcher}
   end
 
