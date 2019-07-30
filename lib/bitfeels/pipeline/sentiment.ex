@@ -1,7 +1,7 @@
 defmodule Bitfeels.Pipeline.Sentiment do
   use GenStage
 
-  alias Bitfeels.Tweet.{Parser, Sentiment}
+  alias Bitfeels.Tweet
 
   def start_link(opts) do
     GenStage.start_link(__MODULE__, opts, name: __MODULE__)
@@ -11,18 +11,16 @@ defmodule Bitfeels.Pipeline.Sentiment do
     {:consumer, opts, subscribe_to: [{Bitfeels.Pipeline.Dispatcher, opts}]}
   end
 
-  def handle_events(tweets, _from, opts) do
-    for %{"id" => _} = status <- tweets do
-      tweet = Parser.parse_to_tweet(status)
-
-      tweet_with_sentiment =
-        tweet
-        |> Sentiment.sentiment_analysis()
-        |> Sentiment.put_sentiment_score(tweet)
-
-      send(opts[:sink], {:tweet, {tweet["id"], tweet_with_sentiment}})
-    end
+  def handle_events(statuses, _from, opts) do
+    statuses
+    |> Tweet.Parser.parse_to_tweet()
+    |> Tweet.Sentiment.sentiment_analysis()
+    |> Enum.map(&send_tweet_message(&1, opts))
 
     {:noreply, [], opts}
+  end
+
+  defp send_tweet_message(tweet, opts) do
+    send(opts[:sink], {:tweet, {tweet["id"], tweet}})
   end
 end
