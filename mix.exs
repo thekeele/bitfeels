@@ -7,7 +7,7 @@ defmodule Bitfeels.MixProject do
     [
       app: :bitfeels,
       version: @version,
-      elixir: "~> 1.7",
+      elixir: "~> 1.9",
       package: package(),
       description: "How are we feeling today Bitcoin?",
       start_permanent: Mix.env() == :prod,
