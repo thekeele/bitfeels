@@ -11,8 +11,7 @@ defmodule Bitfeels.Tweet.Sentiment do
 
     case :hackney.post(url, headers, body, opts) do
       {:ok, 200, _headers, resp} -> Jason.decode!(resp)["tweets"]
-      {:error, :econnrefused} -> tweets
-      error -> error
+      _error -> tweets
     end
   end
 end
