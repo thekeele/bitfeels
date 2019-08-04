@@ -1,13 +1,13 @@
 defmodule Bitfeels.MixProject do
   use Mix.Project
 
-  @version "2.0.6"
+  @version "2.1.0"
 
   def project do
     [
       app: :bitfeels,
       version: @version,
-      elixir: "~> 1.7",
+      elixir: "~> 1.9",
       package: package(),
       description: "How are we feeling today Bitcoin?",
       start_permanent: Mix.env() == :prod,
@@ -29,7 +29,7 @@ defmodule Bitfeels.MixProject do
 
   defp deps do
     [
-      {:twitter_stream, github: "thekeele/twitter_stream", tag: "v0.2.1"},
+      {:twitter_stream, "~> 0.2"},
       {:gen_stage, "~> 0.14"},
       {:hackney, "~> 1.14.3"},
       {:jason, "~> 1.1"},

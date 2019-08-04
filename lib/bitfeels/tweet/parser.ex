@@ -1,5 +1,8 @@
 defmodule Bitfeels.Tweet.Parser do
 
+  def parse_to_tweet(statuses) when is_list(statuses),
+    do: Enum.map(statuses, &parse_to_tweet/1)
+
   def parse_to_tweet(%{"extended_tweet" => extended_tweet} = status) do
     status
     |> Map.take(["created_at", "reply_count", "retweet_count", "favorite_count", "lang"])
