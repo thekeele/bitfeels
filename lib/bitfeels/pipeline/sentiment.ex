@@ -21,6 +21,10 @@ defmodule Bitfeels.Pipeline.Sentiment do
   end
 
   defp send_tweet_message(tweet, opts) do
+    measurements = %{id: tweet["id"], score: tweet["score"]}
+    metadata = %{time: System.os_time(:millisecond)}
+    :telemetry.execute([:bitfeels, :pipeline, :sentiment], measurements, metadata)
+
     send(opts[:sink], {:tweet, {tweet["id"], tweet}})
   end
 end
