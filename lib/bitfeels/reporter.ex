@@ -1,30 +1,27 @@
 defmodule Bitfeels.Reporter do
   use GenServer
-  require Logger
 
   def start_link(opts) do
-    GenServer.start_link(__MODULE__, opts[:events])
+    GenServer.start_link(__MODULE__, opts)
   end
 
-  def init(events) do
-    :ets.new(:bitfeels_events, [:named_table, :public, :bag, {:write_concurrency, true}])
+  def init(opts) do
+    :telemetry.attach_many("bitfeels-reporter", opts[:events], &handle_event/4, opts[:sink])
 
-    :telemetry.attach_many("bitfeels-reporter", events, &handle_event/4, nil)
-
-    {:ok, events}
+    {:ok, opts}
   end
 
-  defp handle_event([:bitfeels, :pipeline, :source] = event, measurements, metadata, _config) do
+  defp handle_event([:bitfeels, :pipeline, :source] = event, measurements, metadata, sink) do
     data = {
       event_key(event),
       measurements.id,
       metadata.time
     }
 
-    :ets.insert(:bitfeels_events, data)
+    send(sink, {:bitfeels_event, data})
   end
 
-  defp handle_event([:bitfeels, :pipeline, :sentiment] = event, measurements, metadata, _config) do
+  defp handle_event([:bitfeels, :pipeline, :sentiment] = event, measurements, metadata, sink) do
     data = {
       event_key(event),
       measurements.id,
@@ -32,7 +29,7 @@ defmodule Bitfeels.Reporter do
       metadata.time,
     }
 
-    :ets.insert(:bitfeels_events, data)
+    send(sink, {:bitfeels_event, data})
   end
 
   defp event_key(event_name) do
