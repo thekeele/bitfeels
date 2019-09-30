@@ -33,6 +33,7 @@ defmodule Bitfeels.MixProject do
       {:gen_stage, "~> 0.14"},
       {:hackney, "~> 1.14.3"},
       {:jason, "~> 1.1"},
+      {:telemetry, "~> 0.4.0"}
     ]
   end
 
