@@ -15,7 +15,7 @@
   "parse_trans": {:hex, :parse_trans, "3.3.0", "09765507a3c7590a784615cfd421d101aec25098d50b89d7aa1d66646bc571c1", [:rebar3], [], "hexpm"},
   "postgrex": {:hex, :postgrex, "0.14.0-rc.1", "a88cbeab25c5f3fc505fc6590bd30877a5acf11b448aedb23b41cbc063824ceb", [:mix], [{:connection, "~> 1.0", [hex: :connection, repo: "hexpm", optional: false]}, {:db_connection, "~> 2.0-rc.0", [hex: :db_connection, repo: "hexpm", optional: false]}, {:decimal, "~> 1.0", [hex: :decimal, repo: "hexpm", optional: false]}, {:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: true]}], "hexpm"},
   "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.4", "f0eafff810d2041e93f915ef59899c923f4568f4585904d010387ed74988e77b", [:make, :mix, :rebar3], [], "hexpm"},
-  "telemetry": {:hex, :telemetry, "0.2.0", "5b40caa3efe4deb30fb12d7cd8ed4f556f6d6bd15c374c2366772161311ce377", [:mix], [], "hexpm"},
-  "twitter_stream": {:git, "https://github.com/thekeele/twitter_stream.git", "9e15f6a80f3a2d9f5c3e4c29808140412a44e28b", [tag: "v0.2.1"]},
+  "telemetry": {:hex, :telemetry, "0.4.0", "8339bee3fa8b91cb84d14c2935f8ecf399ccd87301ad6da6b71c09553834b2ab", [:rebar3], [], "hexpm"},
+  "twitter_stream": {:hex, :twitter_stream, "0.2.3", "f25949d25034744ed535ca08ab704b52684a35f29386dfb7ed110406539567a3", [:mix], [{:hackney, "~> 1.14.3", [hex: :hackney, repo: "hexpm", optional: false]}, {:jsx, "~> 2.9", [hex: :jsx, repo: "hexpm", optional: false]}], "hexpm"},
   "unicode_util_compat": {:hex, :unicode_util_compat, "0.4.1", "d869e4c68901dd9531385bb0c8c40444ebf624e60b6962d95952775cac5e90cd", [:rebar3], [], "hexpm"},
 }
