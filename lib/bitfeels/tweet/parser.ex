@@ -5,7 +5,7 @@ defmodule Bitfeels.Tweet.Parser do
 
   def parse_to_tweet(%{"extended_tweet" => extended_tweet} = status) do
     status
-    |> Map.take(["created_at", "reply_count", "retweet_count", "favorite_count", "lang"])
+    |> Map.take(["created_at", "reply_count", "retweet_count", "favorite_count", "lang", "stream"])
     |> Map.put("id", status["id"])
     |> Map.put("text", extended_tweet["full_text"])
     |> Map.put("type", "extended_tweet")
@@ -13,11 +13,12 @@ defmodule Bitfeels.Tweet.Parser do
     |> Map.put("user", parse_user(status))
   end
 
-  def parse_to_tweet(%{"retweeted_status" => retweeted_status}) do
+  def parse_to_tweet(%{"retweeted_status" => retweeted_status, "stream" => stream}) do
     text = retweeted_status["extended_tweet"]["full_text"] || retweeted_status["text"]
 
     retweeted_status
     |> Map.take(["created_at", "reply_count", "retweet_count", "favorite_count", "lang"])
+    |> Map.put("stream", stream)
     |> Map.put("id", retweeted_status["id"])
     |> Map.put("text", text)
     |> Map.put("type", "retweeted_status")
@@ -25,11 +26,12 @@ defmodule Bitfeels.Tweet.Parser do
     |> Map.put("user", parse_user(retweeted_status))
   end
 
-  def parse_to_tweet(%{"quoted_status" => quoted_status}) do
+  def parse_to_tweet(%{"quoted_status" => quoted_status, "stream" => stream}) do
     text = quoted_status["extended_tweet"]["full_text"] || quoted_status["text"]
 
     quoted_status
     |> Map.take(["created_at", "reply_count", "retweet_count", "favorite_count", "lang"])
+    |> Map.put("stream", stream)
     |> Map.put("id", quoted_status["id"])
     |> Map.put("text", text)
     |> Map.put("type", "quoted_status")
@@ -40,7 +42,7 @@ defmodule Bitfeels.Tweet.Parser do
   def parse_to_tweet(%{"text" => _} = status) do
     status
     |> Map.take([
-      "text", "created_at", "reply_count", "retweet_count", "favorite_count", "lang"
+      "text", "created_at", "reply_count", "retweet_count", "favorite_count", "lang", "stream"
     ])
     |> Map.put("id", status["id"])
     |> Map.put("type", "text")

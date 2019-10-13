@@ -14,8 +14,8 @@ defmodule Bitfeels.Reporter do
   defp handle_event([:bitfeels, :pipeline, :source] = event, measurements, metadata, sink) do
     data = {
       event_key(event),
-      measurements.id,
-      metadata.time
+      measurements,
+      metadata
     }
 
     send(sink, {:bitfeels_event, data})
@@ -24,9 +24,8 @@ defmodule Bitfeels.Reporter do
   defp handle_event([:bitfeels, :pipeline, :sentiment] = event, measurements, metadata, sink) do
     data = {
       event_key(event),
-      measurements.id,
-      measurements.score,
-      metadata.time,
+      measurements,
+      metadata,
     }
 
     send(sink, {:bitfeels_event, data})
