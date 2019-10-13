@@ -1,7 +1,7 @@
 defmodule Bitfeels.MixProject do
   use Mix.Project
 
-  @version "2.2.0"
+  @version "2.2.1"
 
   def project do
     [
@@ -29,7 +29,7 @@ defmodule Bitfeels.MixProject do
 
   defp deps do
     [
-      {:twitter_stream, "~> 0.2"},
+      {:twitter_stream, "~> 0.2.4"},
       {:gen_stage, "~> 0.14"},
       {:hackney, "~> 1.14.3"},
       {:jason, "~> 1.1"},

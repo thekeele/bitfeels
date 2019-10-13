@@ -15,6 +15,6 @@ defmodule Bitfeels.StreamSupervisor do
 
   @impl true
   def init(_opts) do
-    DynamicSupervisor.init(strategy: :one_for_one, max_children: 4)
+    DynamicSupervisor.init(strategy: :one_for_one, max_children: 2)
   end
 end
