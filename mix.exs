@@ -29,9 +29,9 @@ defmodule Bitfeels.MixProject do
 
   defp deps do
     [
-      {:twitter_stream, "~> 0.2.4"},
+      {:twitter_stream, "~> 0.2.6"},
       {:gen_stage, "~> 0.14"},
-      {:hackney, "~> 1.14.3"},
+      {:hackney, "~> 1.15.2"},
       {:jason, "~> 1.1"},
       {:telemetry, "~> 0.4.0"}
     ]
