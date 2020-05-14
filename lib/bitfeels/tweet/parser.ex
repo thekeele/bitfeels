@@ -4,6 +4,10 @@ defmodule Bitfeels.Tweet.Parser do
     do: Enum.map(statuses, &parse_to_tweet/1)
 
   def parse_to_tweet(%{"extended_tweet" => extended_tweet} = status) do
+    measurements = %{id: status["id"], time: System.os_time(:microsecond)}
+    metadata = %{tweet_type: "extended_tweet", track: status["stream"]["track"]}
+    :telemetry.execute([:bitfeels, :tweet, :parser], measurements, metadata)
+
     status
     |> Map.take(["created_at", "reply_count", "retweet_count", "favorite_count", "lang", "stream"])
     |> Map.put("id", status["id"])
@@ -14,6 +18,10 @@ defmodule Bitfeels.Tweet.Parser do
   end
 
   def parse_to_tweet(%{"retweeted_status" => retweeted_status, "stream" => stream}) do
+    measurements = %{id: retweeted_status["id"], time: System.os_time(:microsecond)}
+    metadata = %{tweet_type: "retweeted_status", track: stream["track"]}
+    :telemetry.execute([:bitfeels, :tweet, :parser], measurements, metadata)
+
     text = retweeted_status["extended_tweet"]["full_text"] || retweeted_status["text"]
 
     retweeted_status
@@ -27,6 +35,10 @@ defmodule Bitfeels.Tweet.Parser do
   end
 
   def parse_to_tweet(%{"quoted_status" => quoted_status, "stream" => stream}) do
+    measurements = %{id: quoted_status["id"], time: System.os_time(:microsecond)}
+    metadata = %{tweet_type: "quoted_status", track: stream["track"]}
+    :telemetry.execute([:bitfeels, :tweet, :parser], measurements, metadata)
+
     text = quoted_status["extended_tweet"]["full_text"] || quoted_status["text"]
 
     quoted_status
@@ -40,6 +52,10 @@ defmodule Bitfeels.Tweet.Parser do
   end
 
   def parse_to_tweet(%{"text" => _} = status) do
+    measurements = %{id: status["id"], time: System.os_time(:microsecond)}
+    metadata = %{tweet_type: "text", track: status["stream"]["track"]}
+    :telemetry.execute([:bitfeels, :tweet, :parser], measurements, metadata)
+
     status
     |> Map.take([
       "text", "created_at", "reply_count", "retweet_count", "favorite_count", "lang", "stream"

@@ -21,12 +21,12 @@ defmodule Bitfeels.Pipeline.Source do
   defp put_stream_metadata(event, from) do
     [stream_key | _] = Registry.keys(Registry.Streams, from)
     [user, track] = String.split(stream_key, "_")
-    Map.put(event, "stream", %{user: user, track: track})
+    Map.put(event, "stream", %{"user" => user, "track" => track})
   end
 
   defp fire_metric_event(%{"id" => id, "stream" => stream} = event) do
-    measurements = %{id: id}
-    metadata = %{time: System.os_time(:millisecond), stream: stream}
+    measurements = %{id: id, time: System.os_time(:microsecond)}
+    metadata = %{user: stream["user"], track: stream["track"]}
     :telemetry.execute([:bitfeels, :pipeline, :source], measurements, metadata)
 
     event

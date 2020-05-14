@@ -12,6 +12,9 @@ defmodule Bitfeels.Pipeline.Sentiment do
   end
 
   def handle_events(statuses, _from, opts) do
+    measurements = %{number_of_events: length(statuses), time: System.os_time(:microsecond)}
+    :telemetry.execute([:bitfeels, :pipeline, :sentiment], measurements)
+
     statuses
     |> Tweet.Parser.parse_to_tweet()
     |> Tweet.Sentiment.sentiment_analysis()
@@ -21,8 +24,8 @@ defmodule Bitfeels.Pipeline.Sentiment do
   end
 
   defp send_tweet_message(tweet, opts) do
-    measurements = %{id: tweet["id"], score: tweet["score"]}
-    metadata = %{time: System.os_time(:millisecond), stream: tweet["stream"]}
+    measurements = %{id: tweet["id"], score: tweet["score"], time: System.os_time(:microsecond)}
+    metadata = %{user: tweet["stream"]["user"], track: tweet["stream"]["track"]}
     :telemetry.execute([:bitfeels, :pipeline, :sentiment], measurements, metadata)
 
     send(opts[:sink], {:tweet, {tweet["id"], tweet}})
