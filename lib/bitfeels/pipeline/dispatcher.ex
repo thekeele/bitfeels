@@ -15,6 +15,14 @@ defmodule Bitfeels.Pipeline.Dispatcher do
 
   def handle_call({:notify, event}, from, {queue, pending_demand}) do
     queue = :queue.in({from, event}, queue)
+
+    measurements = %{
+      queue_length: :queue.len(queue),
+      pending_demand: pending_demand,
+      time: System.os_time(:microsecond)
+    }
+    :telemetry.execute([:bitfeels, :pipeline, :dispatcher, :enqueue], measurements)
+
     dispatch_events(queue, pending_demand, [])
   end
 
@@ -30,7 +38,20 @@ defmodule Bitfeels.Pipeline.Dispatcher do
     case :queue.out(queue) do
       {{:value, {from, event}}, queue} ->
         GenStage.reply(from, :ok)
-        dispatch_events(queue, demand - 1, [event | events])
+
+        demand = demand - 1
+        events = [event | events]
+
+        measurements = %{
+          queue_length: :queue.len(queue),
+          demand: demand,
+          events: length(events),
+          time: System.os_time(:microsecond)
+        }
+        :telemetry.execute([:bitfeels, :pipeline, :dispatcher, :dequeue], measurements)
+
+        dispatch_events(queue, demand, events)
+
       {:empty, queue} ->
         {:noreply, Enum.reverse(events), {queue, demand}}
     end
