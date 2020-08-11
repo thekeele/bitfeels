@@ -28,7 +28,9 @@ defmodule Bitfeels.Pipeline.Sentiment do
     metadata = %{
       user: tweet["stream"]["user"],
       track: tweet["stream"]["track"],
-      tweet_type: tweet["type"]
+      tweet_type: tweet["type"],
+      likes: tweet["favorite_count"],
+      retweets: tweet["retweet_count"]
     }
 
     :telemetry.execute([:bitfeels, :pipeline, :sentiment], measurements, metadata)
